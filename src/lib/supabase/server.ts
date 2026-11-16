@@ -24,7 +24,7 @@ export async function createSupabaseServerClient() {
             cookieStore.set(name, value, options);
           }
         } catch {
-          // Server Components cannot write cookies; middleware can refresh them later.
+          // Server Components cannot write cookies. The Next.js proxy refreshes them.
         }
       },
     },

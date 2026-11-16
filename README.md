@@ -4,7 +4,7 @@ Plataforma gratuita de aprendizado de inglês, com aulas organizadas por faixa e
 
 ## Status
 
-Base técnica inicial configurada; aulas, autenticação integrada e funcionalidades de aprendizagem serão implementadas em etapas posteriores.
+MVP público responsivo em desenvolvimento: páginas informativas, trilha e aula demonstrativas, diagnóstico orientativo e painel de progresso local. Autenticação, sincronização Supabase, catálogo completo, painel administrativo e anúncios ainda não estão ativos.
 
 ## Stack
 
@@ -21,7 +21,7 @@ Base técnica inicial configurada; aulas, autenticação integrada e funcionalid
 ## Executar localmente
 
 1. Instale as dependências com `npm install`.
-2. Copie `.env.example` para `.env.local` e preencha as variáveis públicas do projeto Supabase.
+2. Copie `.env.example` para `.env.local` se for testar a integração Supabase futura; a demonstração pública atual não exige essas variáveis.
 3. Inicie o ambiente com `npm run dev` e abra `http://localhost:3000`.
 
 Comandos de validação: `npm run lint`, `npm run typecheck` e `npm run build`.

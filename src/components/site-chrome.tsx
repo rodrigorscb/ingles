@@ -1,0 +1,15 @@
+import Link from "next/link";
+import Image from "next/image";
+import { SiteSearch } from "@/components/site-search";
+
+const links = [
+  ["Curso", "/curso"], ["Diagnóstico", "/diagnostico"], ["Blog", "/blog"], ["Para parceiros", "/parceiros"],
+] as const;
+
+export function SiteHeader() {
+  return <header className="site-header"><Link href="/" className="brand" aria-label="Curso de Inglês Gratuito — início"><Image className="brand-logo" src="/brand/curso-ingles-logo.webp" alt="" width={176} height={70} priority /><span className="sr-only">Curso de Inglês Gratuito</span></Link><nav className="main-nav" aria-label="Navegação principal">{links.map(([label, href]) => <Link href={href} key={href}>{label}</Link>)}</nav><SiteSearch /><div className="header-actions"><Link className="header-login" href="/login">Entrar</Link><Link className="header-cta" href="/diagnostico">Descobrir meu nível <span aria-hidden="true">↗</span></Link></div><details className="mobile-menu"><summary aria-label="Abrir menu"><span></span><span></span><span></span></summary><nav aria-label="Navegação móvel">{links.map(([label, href]) => <Link href={href} key={href}>{label}</Link>)}<Link href="/progresso">Meu progresso</Link><Link href="/login">Entrar ou criar conta</Link><Link href="/faq">Perguntas frequentes</Link><Link href="/sobre">Sobre o projeto</Link><SiteSearch mobile /></nav></details></header>;
+}
+
+export function SiteFooter() {
+  return <footer className="site-footer"><div className="footer-main"><Link href="/" className="brand footer-brand" aria-label="Curso de Inglês Gratuito — início"><Image className="brand-logo footer-logo" src="/brand/curso-ingles-logo.webp" alt="" width={176} height={70} /><span className="sr-only">Curso de Inglês Gratuito</span></Link><p>Aprender inglês deve abrir portas,<br/>não criar mais uma barreira.</p><div className="footer-links"><Link href="/faq">Perguntas frequentes</Link><Link href="/parceiros">Parcerias</Link><Link href="/sobre">Sobre</Link><Link href="/privacidade">Privacidade</Link><Link href="/termos">Termos de uso</Link></div></div><div className="footer-bottom"><span>Conteúdo de demonstração em desenvolvimento.</span><span>© {new Date().getFullYear()} Curso de Inglês Gratuito</span></div></footer>;
+}

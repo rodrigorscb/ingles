@@ -1,15 +1,41 @@
-import { siteDescription, siteName } from "@/lib/site";
+import Link from "next/link";
+import Image from "next/image";
+import { articles } from "@/lib/articles";
+import { a1Lessons, a2Lessons, diagnosticQuestions, levels } from "@/lib/course";
+import type { Metadata } from "next";
+import { SpeechButton } from "@/components/speech-button";
+
+export const metadata: Metadata = { alternates: { canonical: "/" }, openGraph: { title: "Curso de Inglês Gratuito", description: "Aprenda inglês gratuitamente com aulas reais e uma trilha de aprendizagem organizada do A1 ao C2.", url: "/" } };
+
+const paths = [
+  { age: "8–12 anos", title: "Aprender brincando", detail: "Histórias curtas, desafios visuais e palavras para usar já.", color: "path-kids", icon: "✿" },
+  { age: "13–17 anos", title: "Inglês para o seu mundo", detail: "Música, internet, escola e conversas que fazem sentido.", color: "path-youth", icon: "⌁" },
+  { age: "18+ anos", title: "Inglês para seus planos", detail: "Estudo, trabalho, viagens e novas possibilidades.", color: "path-adult", icon: "↗" },
+];
 
 export default function HomePage() {
-  return (
-    <main className="setup-page">
-      <p className="eyebrow">Projeto em preparação</p>
-      <h1>{siteName}</h1>
-      <p>{siteDescription}</p>
-      <p className="setup-note">
-        A base técnica está pronta para evoluir. As aulas e a experiência de
-        aprendizagem serão construídas nas próximas etapas.
-      </p>
-    </main>
-  );
+  return <main>
+    <section className="hero wrap home-hero">
+      <div className="hero-copy"><p className="hero-kicker"><span className="kicker-dot"/> Um curso aberto, do seu jeito</p><h1>Seu próximo<br/>capítulo fala<br/><em>inglês.</em></h1><p className="hero-intro">Aprenda de graça, do primeiro “hello” a conversas cada vez mais complexas. Explore {a1Lessons.length} aulas A1 e {a2Lessons.length} aulas A2 completas, com a trilha planejada até C2.</p><div className="hero-actions"><Link className="button button-primary" href="/curso">Começar a aprender <span aria-hidden="true">↗</span></Link><Link className="button button-quiet" href="/diagnostico">Descobrir meu nível <span aria-hidden="true">→</span></Link></div><div className="hero-proof"><span className="proof-mark">✓</span><span>Gratuito para aprender.<br/><b>Sem cartão, sem pegadinha.</b></span></div></div>
+      <div className="hero-art"><figure className="hero-photo-frame"><Image className="hero-photo" src="/hero-student.webp" alt="Estudante praticando inglês em casa com um caderno e computador" width={1100} height={733} preload sizes="(max-width: 680px) 100vw, (max-width: 1100px) 48vw, 560px"/><figcaption className="hero-photo-caption"><span className="stage-pulse"/><span><b>Seu espaço de aprendizagem</b><small>Uma aula de cada vez, no seu ritmo.</small></span><span className="stage-level">A1</span></figcaption></figure><div className="hero-lesson-note"><span>“Hi, I’m Maya. Where are you from?”</span><SpeechButton text="Hi, I'm Maya. Where are you from?" label="Ouvir frase"/></div></div>
+    </section>
+
+    <section className="trust-strip"><div className="wrap trust-inner"><span>Uma trilha para cada momento</span><div><b>6 níveis</b><i/>do A1 ao C2</div><div><b>Seu ritmo</b><i/>sem prazo para acabar</div><div><b>Voz em inglês</b><i/>pratique no navegador</div></div></section>
+
+    <section className="section wrap pathway-section"><div className="pathway-photo-strip"><Image src="/classroom.webp" alt="Professora apresentando uma atividade de inglês para a turma" width={1050} height={526} sizes="(max-width: 680px) 100vw, 1180px"/><p>Inglês para participar do mundo.<br/><span>Aprenda com situações que fazem parte da vida.</span></p></div><div className="section-heading"><div><p className="section-kicker">INGLÊS PARA A SUA VIDA</p><h2>Um caminho que<br/>cabe em quem você é.</h2></div><p className="section-side">A idade inspira os temas e o jeito de aprender. O nível mostra por onde começar — e pode ser diferente para cada pessoa.</p></div><div className="path-grid">{paths.map((path) => <Link className={`path-card ${path.color}`} href="/curso" key={path.age}><div className="path-card-top"><span className="path-icon">{path.icon}</span><span>{path.age}</span></div><h3>{path.title}</h3><p>{path.detail}</p><span className="path-link">Explorar a trilha <b>↗</b></span></Link>)}</div><p className="age-note">As faixas são sugestões de conteúdo, não uma medida de capacidade. Cada pessoa pode aprender em qualquer nível.</p></section>
+
+    <section className="section levels-band"><div className="wrap"><div className="section-heading levels-heading"><div><p className="section-kicker">SEIS NÍVEIS · UM PASSO DE CADA VEZ</p><h2>De “hello” a<br/>ideias complexas.</h2></div><p className="section-side">Usamos a escala CEFR como referência de aprendizagem. Temos {a1Lessons.length} aulas A1 e {a2Lessons.length} aulas A2 disponíveis; níveis seguintes aparecem como trilha planejada. O diagnóstico é orientativo, não certificação oficial.</p></div><div className="level-rail">{levels.map((level, index) => <Link className={`level-stop level-${level.color}`} href={`/curso#${level.code.toLowerCase()}`} key={level.code}><span className="level-code">{level.code}</span><span className="level-name">{level.name}</span><span className="level-lessons">{index === 0 ? `${a1Lessons.length} aulas disponíveis` : index === 1 ? `${a2Lessons.length} aulas disponíveis` : `${level.plannedLessons} títulos planejados`}</span></Link>)}</div><div className="levels-bottom"><span>Não sabe seu ponto de partida?</span><Link href="/diagnostico">Faça o diagnóstico gratuito <b>↗</b></Link></div></div></section>
+
+    <section className="section wrap learning-section"><div className="learn-art learn-photo-art"><Image src="/english-ideas.webp" alt="Estudante praticando inglês com uma ilustração de ideias e vocabulário" width={760} height={526} sizes="(max-width: 680px) 100vw, 520px"/><span className="learn-photo-label">Aprender também é se surpreender.</span></div><div className="learn-copy"><p className="section-kicker">APRENDER FAZENDO</p><h2>Mais do que<br/>decorar palavras.</h2><p>Entenda uma ideia, experimente, erre sem medo e tente outra vez. Cada aula mistura explicações diretas com pequenas práticas para levar o inglês para o dia a dia.</p><ul className="learn-list"><li><span>01</span><span><b>Uma meta clara</b><small>Você sabe o que vai aprender antes de começar.</small></span></li><li><span>02</span><span><b>Prática no seu ritmo</b><small>Exercícios curtos, com feedback para seguir em frente.</small></span></li><li><span>03</span><span><b>Pronúncia em voz alta</b><small>Escute palavras no navegador e pratique quantas vezes quiser.</small></span></li></ul><Link className="text-link" href="/curso">Conheça a trilha de aprendizagem <b>↗</b></Link></div></section>
+
+    <section className="diagnostic-callout"><div className="wrap diagnostic-inner"><div className="diagnostic-seal"><span>{diagnosticQuestions.length}</span><small>questões</small></div><div><p className="section-kicker">SEU PONTO DE PARTIDA</p><h2>Vamos descobrir<br/>o que você já sabe?</h2><p>Um diagnóstico rápido e gratuito sugere uma faixa para começar. O resultado é indicativo e você pode mudar de nível quando quiser.</p></div><Link className="button button-light" href="/diagnostico">Fazer o diagnóstico <span>↗</span></Link></div></section>
+
+    <section className="section wrap journal-section"><div className="section-heading"><div><p className="section-kicker">CADERNO DE APRENDIZAGEM</p><h2>Ideias para levar<br/>com você.</h2></div><Link className="text-link" href="/blog">Ver todos os artigos <b>↗</b></Link></div><div className="article-grid">{articles.slice(0, 3).map((article, index) => <Link className={`article-card article-${index + 1}`} href={`/blog/${article.slug}`} key={article.title}><div className="article-art"><span>{article.icon}</span><small>{article.category}</small></div><div className="article-copy"><span>{article.category} <i/> {article.time}</span><h3>{article.title}</h3><p>{article.excerpt}</p><b className="article-read">Ler artigo ↗</b></div></Link>)}</div></section>
+
+    <section className="section wrap partnership-section"><div className="partnership-copy"><p className="section-kicker">APRENDER EM BOA COMPANHIA</p><h2>Educação cresce<br/>quando é compartilhada.</h2><p>Escolas, projetos sociais e educadores podem ajudar a abrir mais caminhos para o inglês gratuito.</p><Link className="text-link" href="/parceiros">Conheça as possibilidades <b>↗</b></Link></div><div className="partner-mark-grid"><span>EDUCAÇÃO<br/>ABERTA</span><span>COMUNIDADE<br/>EM REDE</span><span>IDEIAS QUE<br/>CONECTAM</span><span>SEU LOGO<br/>AQUI, UM DIA</span></div></section>
+
+    <section className="section faq-preview"><div className="wrap faq-inner"><div><p className="section-kicker">PERGUNTAS QUE IMPORTAM</p><h2>Aprender sem<br/>surpresas.</h2><Link className="text-link" href="/faq">Ver todas as respostas <b>↗</b></Link></div><div className="faq-preview-list"><details><summary>O curso é realmente gratuito?</summary><p>Sim. A proposta é oferecer acesso gratuito ao conteúdo principal. Algumas funcionalidades ainda estão em desenvolvimento.</p></details><details><summary>Preciso saber inglês para começar?</summary><p>Não. Você pode começar no A1 ou fazer o diagnóstico orientativo para receber uma sugestão de nível.</p></details><details><summary>Posso praticar pronúncia no celular?</summary><p>A leitura em voz alta depende do navegador e do aparelho. Quando não estiver disponível, as frases continuam visíveis para prática manual.</p></details></div></div></section>
+
+    <section className="closing-cta wrap"><span className="closing-star">✳</span><p>Seu inglês começa com uma escolha.</p><h2>Qual vai ser a<br/>sua primeira frase?</h2><Link className="button button-primary" href="/curso">Encontrar minha primeira aula <b>↗</b></Link><span className="closing-note">gratuito · no seu tempo · desde o começo</span></section>
+  </main>;
 }
