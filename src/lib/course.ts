@@ -443,12 +443,29 @@ export const a1Modules: A1Module[] = [
   { id: "free-time-and-plans", title: "Tempo livre e planos", subtitle: "Compartilhe interesses, convide alguém e combine uma atividade.", lessons: a1ModuleFiveLessons },
 ];
 
-export { nextA1Modules } from "@/lib/next-lessons";
-import { nextA1Modules, a2Lessons, a2Modules } from "@/lib/next-lessons";
+import { nextA1Modules, a2Modules as initialA2Modules } from "@/lib/next-lessons";
+export { nextA1Modules };
+import { a2FinalModules } from "@/lib/next-a2-final-lessons";
+import { b1Modules } from "@/lib/next-b1-lessons";
+import { b2Modules } from "@/lib/next-b2-lessons";
+import { c1Modules } from "@/lib/next-c1-lessons";
+import { c1FinalLessons } from "@/lib/next-c1-final-lessons";
 
 a1Modules.push(...nextA1Modules);
-export { a2Lessons, a2Modules };
+export const a2Modules: A1Module[] = initialA2Modules
+  .filter((module) => module.id !== "a2-home-and-community" && module.id !== "a2-project-and-review")
+  .map((module) => module.id === "people-community"
+    ? { ...module, lessons: [...module.lessons, ...(a2FinalModules.find((candidate) => candidate.id === "a2-home-and-community")?.lessons ?? [])] }
+    : module)
+  .concat(a2FinalModules.filter((module) => module.id === "a2-project-and-review"));
+export const a2Lessons: Lesson[] = a2Modules.flatMap((module) => module.lessons);
 export const a1Lessons: Lesson[] = a1Modules.flatMap((module) => module.lessons);
+export const c1PublishedModules: A1Module[] = [
+  c1Modules[0],
+  { ...c1Modules[1], lessons: [...c1Modules[1].lessons.slice(0, 6), ...c1FinalLessons.slice(0, 4)] },
+  { id: "c1-capstone", title: "Projeto crítico C1", subtitle: "Produza uma análise e defenda uma recomendação original.", lessons: c1FinalLessons.slice(4) },
+];
+export { b1Modules, b2Modules, c1Modules };
 
 
 export type PublicationState = "available" | "comingSoon";
@@ -621,7 +638,12 @@ export const courseRoadmap: CourseLevel[] = [
   ] },
 ];
 
-const publishedLessonsBySlug = new Map([...a1Lessons, ...a2Lessons].map((lesson) => [lesson.slug, lesson]));
+const courseContentByLevel: Record<string, Lesson[]> = {
+  B1: b1Modules.flatMap((module) => module.lessons),
+  B2: b2Modules.flatMap((module) => module.lessons),
+  C1: c1PublishedModules.flatMap((module) => module.lessons),
+};
+const publishedLessonsBySlug = new Map([...a1Lessons, ...a2Lessons, ...Object.values(courseContentByLevel).flat()].map((lesson) => [lesson.slug, lesson]));
 export const fullCourseRoadmap: CourseLevel[] = courseRoadmap.map((level) => ({
   code: level.code,
   modules: level.modules.map((module) => ({
@@ -630,7 +652,9 @@ export const fullCourseRoadmap: CourseLevel[] = courseRoadmap.map((level) => ({
       ...item,
       lessons: item.lessons.map((planned) => {
         const lesson = publishedLessonsBySlug.get(planned.slug);
-        return lesson ? { ...planned, title: lesson.title, objective: lesson.subtitle, status: "available" as const } : planned;
+        const levelLesson = courseContentByLevel[level.code]?.find((candidate) => candidate.slug === planned.slug);
+        const published = lesson ?? levelLesson;
+        return published ? { ...planned, title: published.title, objective: published.subtitle, status: "available" as const } : planned;
       }),
     })),
   })),

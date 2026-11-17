@@ -1,14 +1,41 @@
-import { a1Lessons, a2Lessons, a1Modules, a2Modules } from "@/lib/course";
+import { a1Lessons, a2Lessons, a1Modules, a2Modules, b1Modules, b2Modules, c1PublishedModules, fullCourseRoadmap } from "@/lib/course";
+import type { A1Module, Lesson } from "@/lib/course";
 
-export type PublishedLesson = { lesson: (typeof a1Lessons)[number]; level: "A1" | "A2"; index: number; sequence: (typeof a1Lessons)[number][] };
+export type CourseLessonLevel = "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
+export type PublishedLesson = { lesson: Lesson; level: CourseLessonLevel; index: number; sequence: Lesson[] };
 
-export const publishedLessons = [...a1Lessons, ...a2Lessons];
-export const publishedModules = [...a1Modules, ...a2Modules];
+const levelModules: Record<CourseLessonLevel, A1Module[]> = {
+  A1: a1Modules,
+  A2: a2Modules,
+  B1: b1Modules,
+  B2: b2Modules,
+  C1: c1PublishedModules,
+  C2: [],
+};
+
+export const lessonsByLevel = Object.fromEntries(
+  (Object.keys(levelModules) as CourseLessonLevel[]).map((level) => {
+    const roadmap = fullCourseRoadmap.find((entry) => entry.code === level);
+    const authored = levelModules[level].flatMap((module) => module.lessons);
+    const sequence = level === "A1" ? a1Lessons : level === "A2" ? a2Lessons : authored;
+    const ordered = roadmap?.modules.flatMap((courseModule) =>
+      courseModule.chapters.flatMap((chapter) => chapter.lessons.flatMap((planned) => {
+        const lesson = sequence.find((candidate) => candidate.slug === planned.slug);
+        return lesson ? [lesson] : [];
+      })),
+    ) ?? [];
+    return [level, ordered];
+  }),
+) as Record<CourseLessonLevel, Lesson[]>;
+
+export const publishedLessons = Object.values(lessonsByLevel).flat();
+export const publishedModules = Object.values(levelModules).flat();
 
 export function getPublishedLesson(slug: string): PublishedLesson | undefined {
-  const a1Index = a1Lessons.findIndex((lesson) => lesson.slug === slug);
-  if (a1Index >= 0) return { lesson: a1Lessons[a1Index], level: "A1", index: a1Index, sequence: a1Lessons };
-  const a2Index = a2Lessons.findIndex((lesson) => lesson.slug === slug);
-  if (a2Index >= 0) return { lesson: a2Lessons[a2Index], level: "A2", index: a2Index, sequence: a2Lessons };
+  for (const level of Object.keys(lessonsByLevel) as CourseLessonLevel[]) {
+    const sequence = lessonsByLevel[level];
+    const index = sequence.findIndex((lesson) => lesson.slug === slug);
+    if (index >= 0) return { lesson: sequence[index], level, index, sequence };
+  }
   return undefined;
 }

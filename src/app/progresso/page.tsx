@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { createLearnerProfile } from "@/app/auth/profile-actions";
 import { LocalDemoProgress } from "@/components/local-demo-progress";
-import { a1Lessons, a1Modules, a2Lessons, a2Modules } from "@/lib/course";
+import { a1Lessons, a1Modules, a2Lessons, a2Modules, b1Modules, b2Modules, c1PublishedModules } from "@/lib/course";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Seu progresso", robots: { index: false, follow: false } };
@@ -34,8 +34,8 @@ export default async function ProgressPage({ searchParams }: Props) {
 
   const selected = profiles.find((profile) => profile.id === params.profile) || profiles[0];
   const ageNames: Record<string, string> = { child_8_12: "8–12 anos", teen_13_17: "13–17 anos", adult: "18+ anos" };
-  const publishedLessons = [...a1Lessons, ...a2Lessons];
-  const publishedModules = [...a1Modules, ...a2Modules];
+  const publishedLessons = [...a1Lessons, ...a2Lessons, ...b1Modules.flatMap((module) => module.lessons), ...b2Modules.flatMap((module) => module.lessons), ...c1PublishedModules.flatMap((module) => module.lessons)];
+  const publishedModules = [...a1Modules, ...a2Modules, ...b1Modules, ...b2Modules, ...c1PublishedModules];
   const nextLesson = publishedLessons.find((lesson) => !completedIds.includes(lesson.id));
   const courseCompleted = publishedLessons.filter((lesson) => completedIds.includes(lesson.id)).length;
   const moduleCounts = publishedModules.map((module) => ({ module, completed: module.lessons.filter((lesson) => completedIds.includes(lesson.id)).length }));

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { articles } from "@/lib/articles";
-import { a1Lessons, a2Lessons, diagnosticQuestions, levels } from "@/lib/course";
+import { a1Lessons, a2Lessons, b1Modules, b2Modules, c1PublishedModules, diagnosticQuestions, levels } from "@/lib/course";
 import type { Metadata } from "next";
 import { SpeechButton } from "@/components/speech-button";
 
@@ -16,7 +16,7 @@ const paths = [
 export default function HomePage() {
   return <main>
     <section className="hero wrap home-hero">
-      <div className="hero-copy"><p className="hero-kicker"><span className="kicker-dot"/> Um curso aberto, do seu jeito</p><h1>Seu próximo<br/>capítulo fala<br/><em>inglês.</em></h1><p className="hero-intro">Aprenda de graça, do primeiro “hello” a conversas cada vez mais complexas. Explore {a1Lessons.length} aulas A1 e {a2Lessons.length} aulas A2 completas, com a trilha planejada até C2.</p><div className="hero-actions"><Link className="button button-primary" href="/curso">Começar a aprender <span aria-hidden="true">↗</span></Link><Link className="button button-quiet" href="/diagnostico">Descobrir meu nível <span aria-hidden="true">→</span></Link></div><div className="hero-proof"><span className="proof-mark">✓</span><span>Gratuito para aprender.<br/><b>Sem cartão, sem pegadinha.</b></span></div></div>
+      <div className="hero-copy"><p className="hero-kicker"><span className="kicker-dot"/> Um curso aberto, do seu jeito</p><h1>Seu próximo<br/>capítulo fala<br/><em>inglês.</em></h1><p className="hero-intro">Aprenda de graça, do primeiro “hello” a conversas cada vez mais complexas. Explore {a1Lessons.length} aulas A1, {a2Lessons.length} aulas A2 e {b1Modules.flatMap((module) => module.lessons).length + b2Modules.flatMap((module) => module.lessons).length + c1PublishedModules.flatMap((module) => module.lessons).length} aulas de B1 a C1 em módulos publicados, com a trilha planejada até C2.</p><div className="hero-actions"><Link className="button button-primary" href="/curso">Começar a aprender <span aria-hidden="true">↗</span></Link><Link className="button button-quiet" href="/diagnostico">Descobrir meu nível <span aria-hidden="true">→</span></Link></div><div className="hero-proof"><span className="proof-mark">✓</span><span>Gratuito para aprender.<br/><b>Sem cartão, sem pegadinha.</b></span></div></div>
       <div className="hero-art"><figure className="hero-photo-frame"><Image className="hero-photo" src="/hero-student.webp" alt="Estudante praticando inglês em casa com um caderno e computador" width={1100} height={733} preload sizes="(max-width: 680px) 100vw, (max-width: 1100px) 48vw, 560px"/><figcaption className="hero-photo-caption"><span className="stage-pulse"/><span><b>Seu espaço de aprendizagem</b><small>Uma aula de cada vez, no seu ritmo.</small></span><span className="stage-level">A1</span></figcaption></figure><div className="hero-lesson-note"><span>“Hi, I’m Maya. Where are you from?”</span><SpeechButton text="Hi, I'm Maya. Where are you from?" label="Ouvir frase"/></div></div>
     </section>
 
