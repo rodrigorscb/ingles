@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { SpeechButton } from "@/components/speech-button";
-import { a1Modules, a2Modules, type Lesson } from "@/lib/course";
+import { a1Modules, a2Modules, c2Modules, type Lesson } from "@/lib/course";
 import { b1Modules } from "@/lib/next-b1-lessons";
 import { b2Modules } from "@/lib/next-b2-lessons";
 import { c1PublishedModules } from "@/lib/course";
@@ -51,7 +51,7 @@ export function LessonFlow({ lesson, index, level, sequence, initialCompleted, p
     }
   }
 
-  const currentModules = level === "A1" ? a1Modules : level === "A2" ? a2Modules : level === "B1" ? b1Modules : level === "B2" ? b2Modules : level === "C1" ? c1PublishedModules : [];
+  const currentModules = level === "A1" ? a1Modules : level === "A2" ? a2Modules : level === "B1" ? b1Modules : level === "B2" ? b2Modules : level === "C1" ? c1PublishedModules : level === "C2" ? c2Modules : [];
   const currentModule = currentModules.find((module) => module.lessons.some((item) => item.slug === lesson.slug));
   const currentSequence = sequence;
   const localIndex = index;

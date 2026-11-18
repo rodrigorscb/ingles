@@ -450,6 +450,9 @@ import { b1Modules } from "@/lib/next-b1-lessons";
 import { b2Modules } from "@/lib/next-b2-lessons";
 import { c1Modules } from "@/lib/next-c1-lessons";
 import { c1FinalLessons } from "@/lib/next-c1-final-lessons";
+import { c1CapstoneLessons } from "@/lib/next-c1-capstone-lessons";
+import { c2Modules } from "@/lib/next-c2-lessons";
+export { c2Modules };
 
 a1Modules.push(...nextA1Modules);
 export const a2Modules: A1Module[] = initialA2Modules
@@ -463,7 +466,7 @@ export const a1Lessons: Lesson[] = a1Modules.flatMap((module) => module.lessons)
 export const c1PublishedModules: A1Module[] = [
   c1Modules[0],
   { ...c1Modules[1], lessons: [...c1Modules[1].lessons.slice(0, 6), ...c1FinalLessons.slice(0, 4)] },
-  { id: "c1-capstone", title: "Projeto crítico C1", subtitle: "Produza uma análise e defenda uma recomendação original.", lessons: c1FinalLessons.slice(4) },
+  { id: "c1-capstone", title: "Projeto crítico C1", subtitle: "Produza uma análise e defenda uma recomendação original.", lessons: [...c1FinalLessons.slice(4), ...c1CapstoneLessons] },
 ];
 export { b1Modules, b2Modules, c1Modules };
 
@@ -642,6 +645,7 @@ const courseContentByLevel: Record<string, Lesson[]> = {
   B1: b1Modules.flatMap((module) => module.lessons),
   B2: b2Modules.flatMap((module) => module.lessons),
   C1: c1PublishedModules.flatMap((module) => module.lessons),
+  C2: c2Modules.flatMap((module) => module.lessons),
 };
 const publishedLessonsBySlug = new Map([...a1Lessons, ...a2Lessons, ...Object.values(courseContentByLevel).flat()].map((lesson) => [lesson.slug, lesson]));
 export const fullCourseRoadmap: CourseLevel[] = courseRoadmap.map((level) => ({

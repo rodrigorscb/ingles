@@ -1,4 +1,4 @@
-import { a1Lessons, a2Lessons, b1Modules, b2Modules, c1PublishedModules, fullCourseRoadmap } from "@/lib/course";
+import { a1Lessons, a2Lessons, b1Modules, b2Modules, c1PublishedModules, c2Modules, fullCourseRoadmap } from "@/lib/course";
 
 const authoredLessons = {
   A1: a1Lessons,
@@ -6,6 +6,7 @@ const authoredLessons = {
   B1: b1Modules.flatMap((module) => module.lessons),
   B2: b2Modules.flatMap((module) => module.lessons),
   C1: c1PublishedModules.flatMap((module) => module.lessons),
+  C2: c2Modules.flatMap((module) => module.lessons),
 };
 const publishedLessons = Object.values(authoredLessons).flat();
 const lessonBySlug = new Map(publishedLessons.map((lesson) => [lesson.slug, lesson]));
@@ -38,7 +39,7 @@ export function validateCourseRoadmap(): string[] {
   const actualA2 = authoredLessons.A2.map((lesson) => lesson.slug);
   if (JSON.stringify(actualA2.slice(-requiredA2Suffix.length)) !== JSON.stringify(requiredA2Suffix)) errors.push("A2 published project and review lessons are out of order");
   for (const [levelCode, lessons] of Object.entries(authoredLessons)) {
-    const expectedCount = levelCode === "A1" ? 49 : levelCode === "A2" ? 40 : levelCode === "B1" || levelCode === "B2" ? 30 : 26;
+    const expectedCount = levelCode === "A1" ? 49 : levelCode === "A2" ? 40 : levelCode === "B1" || levelCode === "B2" || levelCode === "C1" || levelCode === "C2" ? 30 : 0;
     if (lessons.length !== expectedCount) errors.push(`${levelCode} must publish ${expectedCount} lessons; found ${lessons.length}`);
     for (const lesson of lessons) {
       if (!seenSlugs.has(lesson.slug)) errors.push(`Published lesson is missing from roadmap: ${lesson.slug}`);

@@ -1,4 +1,4 @@
-import { a1Lessons, a2Lessons, a1Modules, a2Modules, b1Modules, b2Modules, c1PublishedModules, fullCourseRoadmap } from "@/lib/course";
+import { a1Lessons, a2Lessons, a1Modules, a2Modules, b1Modules, b2Modules, c1PublishedModules, c2Modules, fullCourseRoadmap } from "@/lib/course";
 import type { A1Module, Lesson } from "@/lib/course";
 
 export type CourseLessonLevel = "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
@@ -10,7 +10,7 @@ const levelModules: Record<CourseLessonLevel, A1Module[]> = {
   B1: b1Modules,
   B2: b2Modules,
   C1: c1PublishedModules,
-  C2: [],
+  C2: c2Modules,
 };
 
 export const lessonsByLevel = Object.fromEntries(
