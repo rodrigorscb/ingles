@@ -3,7 +3,7 @@ import Image from "next/image";
 import { SiteSearch } from "@/components/site-search";
 
 const links = [
-  ["Curso", "/curso"], ["Diagnóstico", "/diagnostico"], ["Blog", "/blog"], ["Para parceiros", "/parceiros"],
+  ["Curso", "/curso"], ["Diagnóstico", "/diagnostico"], ["Simulados", "/simulados"], ["Blog", "/blog"], ["Para parceiros", "/parceiros"],
 ] as const;
 
 export function SiteHeader() {
