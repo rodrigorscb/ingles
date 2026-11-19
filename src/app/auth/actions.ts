@@ -34,6 +34,7 @@ export async function signUpAction(formData: FormData) {
   if (!email || password.length < 8 || !guardianDeclaration) redirect("/login?mode=signup&error=validation");
 
   let signUpError: "signup" | "signup-unavailable" | undefined;
+  let signedInImmediately = false;
   try {
     const supabase = await createSupabaseServerClient();
     const redirectOrigin = process.env.NEXT_PUBLIC_SITE_URL || new URL(process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000").origin;
@@ -47,17 +48,21 @@ export async function signUpAction(formData: FormData) {
       },
     });
     if (error) {
-      signUpError = "signup";
+      signUpError = error.code === "over_email_send_rate_limit" ? "signup-unavailable" : "signup";
       console.error("[auth] Sign-up request was rejected:", error.code || "Supabase auth error");
-    } else if (!data.user || !data.session) {
+    } else if (!data.user) {
       signUpError = "signup";
-      console.error("[auth] Sign-up returned without an authenticated user or session.");
+      console.error("[auth] Sign-up returned without a user.");
+    } else {
+      // With email confirmation enabled, Supabase returns the user without a session until the link is clicked.
+      signedInImmediately = Boolean(data.session);
     }
   } catch (error) {
     signUpError = "signup-unavailable";
     console.error("[auth] Sign-up request failed:", error instanceof Error ? error.name : "unknown error");
   }
-  redirect(signUpError ? `/login?mode=signup&error=${signUpError}` : "/login?message=check-email");
+  if (signUpError) redirect(`/login?mode=signup&error=${signUpError}`);
+  redirect(signedInImmediately ? "/progresso" : "/login?message=check-email");
 }
 
 export async function signOutAction() {
