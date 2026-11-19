@@ -71,3 +71,29 @@ export const simulationsByFamily = setsByFamily;
 export function getSimulation(id: string) {
   return simulations.find((simulation) => simulation.id === id);
 }
+
+const examSearchLabels: [prefix: string, label: string][] = [
+  ["enem-", "ENEM Inglês"],
+  ["cambridge-a2-key", "Cambridge A2 Key (KET)"],
+  ["cambridge-b1-preliminary", "Cambridge B1 Preliminary (PET)"],
+  ["cambridge-b2-first", "Cambridge B2 First (FCE)"],
+  ["cambridge-c1-advanced", "Cambridge C1 Advanced (CAE)"],
+  ["cambridge-c2-proficiency", "Cambridge C2 Proficiency (CPE)"],
+  ["ielts-academic", "IELTS Academic Reading"],
+  ["ielts-general-training", "IELTS General Training Reading"],
+  ["toefl-ibt", "TOEFL iBT Reading"],
+  ["toefl-itp", "TOEFL ITP"],
+  ["toeic-", "TOEIC Reading"],
+];
+
+/** Exam name as people search for it (e.g. "Cambridge B2 First (FCE)"). */
+export function examSearchLabel(simulation: Simulation) {
+  return examSearchLabels.find(([prefix]) => simulation.id.startsWith(prefix))?.[1] ?? simulation.exam;
+}
+
+/** Number of the test inside its family and its theme without the "Simulado N ·" prefix. */
+export function simulationParts(simulation: Simulation) {
+  const number = Number(simulation.id.match(/-(\d+)$/)?.[1] ?? 1);
+  const theme = simulation.title.replace(/^(Simulado|Caderno)\s+\d+\s*·\s*/, "");
+  return { number, theme };
+}

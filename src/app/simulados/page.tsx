@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { simulationsByFamily } from "@/lib/simulations";
+import { JsonLd } from "@/components/json-ld";
+import { breadcrumbs } from "@/lib/site";
 
 const totalSimulations = simulationsByFamily.reduce((sum, family) => sum + family.simulations.length, 0);
 
 export const metadata: Metadata = {
-  title: "Simulados de inglês grátis: ENEM, Cambridge, IELTS, TOEFL e TOEIC",
-  description: "Simulados gratuitos de inglês no formato do ENEM, das provas Cambridge (KET, PET, FCE, CAE e CPE), do IELTS Academic e General Training do TOEFL iBT e ITP e do TOEIC Reading, com cronômetro opcional e correção comentada em português.",
+  title: { absolute: "Simulados de Inglês Grátis: ENEM, TOEFL, IELTS, TOEIC e Cambridge" },
+  description: "55 simulados de inglês grátis e online: ENEM, TOEFL iBT e ITP, IELTS, TOEIC e Cambridge (KET, PET, FCE, CAE, CPE), com cronômetro e correção comentada.",
   alternates: { canonical: "/simulados" },
   openGraph: { title: "Simulados de inglês: ENEM, Cambridge, IELTS, TOEFL e TOEIC", description: "Questões autorais no formato real das provas, cronômetro opcional e correção comentada.", url: "/simulados" },
 };
@@ -20,8 +22,8 @@ function formatDuration(minutes: number) {
 }
 
 export default function SimuladosPage() {
-  return <main className="inner-page simulations-page"><div className="wrap inner-wrap">
-    <header className="simulations-hero"><div className="simulations-hero-copy"><p className="section-kicker">PRÁTICA COM DEVOLUTIVA</p><h1>Uma prova de cada vez.<br/>Uma ideia mais clara do seu próximo passo.</h1><p>{totalSimulations} simulados gratuitos no formato do ENEM, das provas Cambridge (do A2 Key ao C2 Proficiency), do IELTS, do TOEFL e do TOEIC. Cada um segue a estrutura e a quantidade de questões da prova real, com tempo sugerido, cronômetro opcional e correção comentada em português.</p><a className="button button-primary" href="#provas">Escolher um simulado <span aria-hidden="true">↓</span></a></div><div className="simulations-scorecard" aria-label="Como funciona a prática"><div className="scorecard-mark">A—D</div><p>Leia com atenção.<br/><b>Escolha com intenção.</b></p><span>Respostas comentadas no final.</span></div></header>
+  return <main className="inner-page simulations-page"><JsonLd data={breadcrumbs([["Início", "/"], ["Simulados de inglês", "/simulados"]])} /><div className="wrap inner-wrap">
+    <header className="simulations-hero"><div className="simulations-hero-copy"><p className="section-kicker">PRÁTICA COM DEVOLUTIVA</p><h1>Simulados de inglês grátis,<br/>com correção comentada.</h1><p className="simulations-tagline">Uma prova de cada vez. Uma ideia mais clara do seu próximo passo.</p><p>{totalSimulations} simulados gratuitos no formato do ENEM, das provas Cambridge (do A2 Key ao C2 Proficiency), do IELTS, do TOEFL e do TOEIC. Cada um segue a estrutura e a quantidade de questões da prova real, com tempo sugerido, cronômetro opcional e correção comentada em português.</p><a className="button button-primary" href="#provas">Escolher um simulado <span aria-hidden="true">↓</span></a></div><div className="simulations-scorecard" aria-label="Como funciona a prática"><div className="scorecard-mark">A—D</div><p>Leia com atenção.<br/><b>Escolha com intenção.</b></p><span>Respostas comentadas no final.</span></div></header>
     <section className="simulation-library" id="provas"><div className="simulation-library-heading"><div><p className="section-kicker">ESCOLHA SEU TREINO</p><h2>Práticas por exame e nível</h2></div><p>Todas as questões são autorais: seguem o formato oficial, mas não são itens oficiais nem reproduções de provas do Inep, da Cambridge, do IELTS ou da ETS.</p></div><div className="simulation-library-families">{simulationsByFamily.map((family, familyIndex) => { const first = family.simulations[0]; return <section className={`simulation-family family-tone-${familyIndex % 6}`} key={family.key} id={family.key}>
       <div className="simulation-family-heading"><div><h3>{family.title}</h3><p>{family.component} · {family.level}</p></div><div className="simulation-family-meta">{first && <><span>{first.questions.length} questões</span><span>{formatDuration(first.duration)}</span></>}<span>{family.simulations.length} provas</span><a href={family.officialUrl} target="_blank" rel="noopener noreferrer">Formato oficial ↗</a></div></div>
       <div className="simulation-cards">{family.simulations.map((simulation, index) => <Link className="sim-card" href={`/simulados/${simulation.id}`} key={simulation.id} aria-label={`${simulation.exam}, prova ${index + 1}: ${cardTheme(simulation.title)}`}>

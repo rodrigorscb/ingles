@@ -222,3 +222,31 @@
 .auth-flower{color:var(--blue);font-size:22px}
 .auth-resend{margin:0 0 18px;padding:14px;border:1px solid var(--line);border-radius:10px;background:#fff}
 .dashboard-warning{margin:14px 0;padding:12px 14px;border-left:3px solid var(--yellow);border-radius:0 8px 8px 0;background:#fffaea;color:#5e532a;font-size:13px;line-height:1.6}
+
+/* ---------- Home hero: keyword H1 styled as kicker, statement kept as display text ---------- */
+.hero h1.hero-kicker{margin:0;font-size:13px;line-height:1.35;letter-spacing:.01em;font-weight:700}
+.hero .hero-title{margin:23px 0 21px;color:var(--ink);font-size:clamp(58px,7.6vw,94px);line-height:.98;letter-spacing:-.078em;font-weight:600}
+.hero .hero-title em{font-family:Georgia,"Times New Roman",serif;color:var(--blue);font-weight:500;letter-spacing:-.07em}
+@media (max-width:680px){.hero .hero-title{margin:19px 0 14px;font-size:clamp(55px,14vw,72px)}.hero h1.hero-kicker{font-size:12px}}
+
+/* ---------- SEO copy blocks ---------- */
+.seo-copy{max-width:760px;margin-top:56px;padding-top:36px;border-top:1px solid var(--line)}
+.seo-copy h2{margin:30px 0 10px;font-size:26px;line-height:1.2;letter-spacing:-.03em}
+.seo-copy h2:first-child{margin-top:0}
+.seo-copy p{margin:0 0 14px;color:#40516d;font-size:16px;line-height:1.8}
+.seo-copy a{color:var(--blue);font-weight:700}
+.seo-levels{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:14px 0 20px}
+.seo-levels>div{padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.seo-levels dt{display:flex;align-items:center;gap:10px;color:var(--ink);font-size:15px;font-weight:700}
+.seo-levels dt span{display:grid;place-items:center;width:34px;height:26px;border-radius:7px;background:#edf2ff;color:var(--blue);font-size:12px}
+.seo-levels dd{margin:6px 0 0;color:#5d6c83;font-size:14px;line-height:1.6}
+.seo-faq{display:grid;gap:8px}
+.seo-faq details{padding:14px 16px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.seo-faq summary{cursor:pointer;color:var(--ink);font-size:16px;font-weight:700}
+.seo-faq details p{margin:10px 0 0;font-size:15px}
+.simulations-tagline{margin:0 0 10px;color:var(--blue);font-size:18px;font-weight:700}
+.simulation-siblings{margin-top:40px;padding:22px;border:1px solid var(--line);border-radius:14px;background:#fff}
+.simulation-siblings h2{margin:0 0 12px;font-size:20px;letter-spacing:-.02em}
+.simulation-siblings ul{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px;margin:0 0 14px;padding:0;list-style:none}
+.simulation-siblings li a{display:block;padding:10px 12px;border-radius:8px;background:#f4f7fc;color:var(--ink);font-size:14px;font-weight:700;text-decoration:none}
+.simulation-siblings li a:hover{background:#e8eeff;color:var(--blue)}

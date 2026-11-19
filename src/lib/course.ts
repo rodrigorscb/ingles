@@ -702,7 +702,8 @@ export function getPlacement(score: number, total: number) {
   const percent = total ? Math.round((score / total) * 100) : 0;
   const index = percent <= 20 ? 0 : percent <= 40 ? 1 : percent <= 60 ? 2 : percent <= 75 ? 3 : percent <= 90 ? 4 : 5;
   const recommended = levels[index];
-  const hasPublishedLessons = recommended.code === "A1" || recommended.code === "A2";
-  const recommendationLevel = recommended.code === "A1" || recommended.code === "A2" ? recommended : levels[1];
+  // Every CEFR level now has published lessons, so the recommendation is always the placed level.
+  const hasPublishedLessons = true;
+  const recommendationLevel = recommended;
   return { percent, level: recommended, hasPublishedLessons, recommendationLevel };
 }
