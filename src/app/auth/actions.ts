@@ -8,17 +8,22 @@ function safeNextPath(value: FormDataEntryValue | null) {
   return path.startsWith("/") && !path.startsWith("//") && !path.includes("\\") ? path : "/progresso";
 }
 
+function confirmationRedirect() {
+  const origin = process.env.NEXT_PUBLIC_SITE_URL || new URL(process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000").origin;
+  return new URL("/auth/callback?next=/progresso", origin).toString();
+}
+
 export async function signInAction(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
   const next = safeNextPath(formData.get("next"));
   if (!email || !password) redirect(`/login?mode=signin&error=missing&next=${encodeURIComponent(next)}`);
 
-  let signInError: "password" | "signin" | "unavailable" | undefined;
+  let signInError: "password" | "signin" | "unconfirmed" | "unavailable" | undefined;
   try {
     const supabase = await createSupabaseServerClient();
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) signInError = /invalid login credentials/i.test(error.message) ? "password" : "signin";
+    if (error) signInError = error.code === "email_not_confirmed" ? "unconfirmed" : /invalid login credentials/i.test(error.message) ? "password" : "signin";
   } catch (error) {
     signInError = "unavailable";
     console.error("[auth] Sign-in request failed:", error instanceof Error ? error.name : "unknown error");
@@ -37,8 +42,7 @@ export async function signUpAction(formData: FormData) {
   let signedInImmediately = false;
   try {
     const supabase = await createSupabaseServerClient();
-    const redirectOrigin = process.env.NEXT_PUBLIC_SITE_URL || new URL(process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000").origin;
-    const emailRedirectTo = new URL("/auth/callback?next=/progresso", redirectOrigin).toString();
+    const emailRedirectTo = confirmationRedirect();
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -63,6 +67,25 @@ export async function signUpAction(formData: FormData) {
   }
   if (signUpError) redirect(`/login?mode=signup&error=${signUpError}`);
   redirect(signedInImmediately ? "/progresso" : "/login?message=check-email");
+}
+
+export async function resendConfirmationAction(formData: FormData) {
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  if (!email) redirect("/login?mode=signin&error=unconfirmed");
+
+  let resendError: "resend" | "signup-unavailable" | undefined;
+  try {
+    const supabase = await createSupabaseServerClient();
+    const { error } = await supabase.auth.resend({ type: "signup", email, options: { emailRedirectTo: confirmationRedirect() } });
+    if (error) {
+      resendError = error.code === "over_email_send_rate_limit" ? "signup-unavailable" : "resend";
+      console.error("[auth] Confirmation resend was rejected:", error.code || "Supabase auth error");
+    }
+  } catch (error) {
+    resendError = "signup-unavailable";
+    console.error("[auth] Confirmation resend failed:", error instanceof Error ? error.name : "unknown error");
+  }
+  redirect(resendError ? `/login?mode=signin&error=${resendError}` : "/login?mode=signin&message=resent");
 }
 
 export async function signOutAction() {

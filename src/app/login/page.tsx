@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { signInAction, signUpAction } from "@/app/auth/actions";
+import { resendConfirmationAction, signInAction, signUpAction } from "@/app/auth/actions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Entrar ou criar conta", robots: { index: false, follow: false } };
@@ -9,6 +9,8 @@ type Props = { searchParams: Promise<{ mode?: string; error?: string; message?: 
 const errorMessages: Record<string, string> = {
   password: "Senha incorreta. Tente novamente.",
   signin: "Não foi possível entrar. Confira o e-mail e a senha e tente novamente.",
+  unconfirmed: "Seu e-mail ainda não foi confirmado. Abra a mensagem de noreply@mail.app.supabase.io (confira também o spam e a aba Promoções) e clique no link de confirmação. Se não encontrar, peça um novo e-mail abaixo.",
+  resend: "Não foi possível reenviar o e-mail de confirmação. Confira o endereço e tente novamente.",
   missing: "Preencha o e-mail e a senha.",
   validation: "Informe um e-mail válido e uma senha com pelo menos 8 caracteres.",
   signup: "Não foi possível criar a conta. Verifique os dados e tente novamente.",
@@ -41,7 +43,12 @@ export default async function LoginPage({ searchParams }: Props) {
       <p>{isSignUp ? "Crie a conta do responsável. Você poderá adicionar até três perfis de aprendizagem." : "Entre com a conta do responsável para acessar perfis e progresso sincronizado."}</p>
       {sessionLookupFailed && <p className="form-message form-error" role="alert">Não foi possível verificar sua sessão. O serviço de contas pode estar temporariamente indisponível.</p>}
       {params.error && <p className="form-message form-error" role="alert">{errorMessages[params.error] || "Ocorreu um erro. Tente novamente."}</p>}
-      {params.message === "check-email" && <p className="form-message form-success" role="status">Conta criada. Confira sua caixa de entrada para confirmar o e-mail e ativar o acesso.</p>}
+      {params.message === "check-email" && <p className="form-message form-success" role="status">Conta criada. Confira sua caixa de entrada (e o spam) para confirmar o e-mail e ativar o acesso.</p>}
+      {params.message === "resent" && <p className="form-message form-success" role="status">Enviamos um novo e-mail de confirmação. Pode levar alguns minutos; confira também o spam.</p>}
+      {(params.error === "unconfirmed" || params.error === "resend") && <form className="auth-form auth-resend" action={resendConfirmationAction}>
+        <label>E-mail da conta<input type="email" name="email" autoComplete="email" placeholder="voce@exemplo.com" required /></label>
+        <button className="button button-quiet" type="submit">Reenviar e-mail de confirmação</button>
+      </form>}
       <form className="auth-disabled auth-form" action={isSignUp ? signUpAction : signInAction}>
         {isSignUp && <label>Nome do responsável<input name="displayName" autoComplete="name" maxLength={80} placeholder="Como podemos chamar você?" required /></label>}
         <label>E-mail<input type="email" name="email" autoComplete="email" placeholder="voce@exemplo.com" required /></label>
