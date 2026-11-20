@@ -266,3 +266,20 @@
 .home-hero .button-quiet{border-color:rgba(23,43,77,.2);color:var(--ink)}
 .home-hero .button-quiet:hover:not(:disabled){background:rgba(23,43,77,.05)}
 .home-hero .proof-mark{background:#eaf6f0;color:var(--green)}
+
+/* === Partnership cards === */
+.partner-mark-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;border:0}
+.partner-card{display:flex;flex-direction:column;gap:7px;padding:20px 18px;border:1px solid var(--line);border-radius:16px;background:#fff;box-shadow:0 1px 2px rgba(23,43,77,.04);text-decoration:none;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+.partner-card:hover{transform:translateY(-3px);box-shadow:0 16px 34px rgba(23,43,77,.1);border-color:#c7d3e6}
+.partner-icon{display:grid;place-items:center;width:40px;height:40px;margin-bottom:3px;border-radius:12px;font-size:19px;line-height:1}
+.partner-card b{color:var(--ink);font-size:15px;font-weight:700;letter-spacing:-.01em}
+.partner-card small{color:#6c798d;font-size:12px;line-height:1.5}
+.partner-card.p-green .partner-icon{background:rgba(45,138,105,.12);color:var(--green)}
+.partner-card.p-blue .partner-icon{background:rgba(49,94,234,.1);color:var(--blue)}
+.partner-card.p-gold .partner-icon{background:rgba(244,196,48,.2);color:#a9791a}
+.partner-invite{border-style:dashed;border-color:rgba(214,162,21,.55);background:linear-gradient(180deg,#fffdf4,#fff)}
+.partner-invite:hover{border-color:#d6a215}
+.partner-invite .partner-icon{background:rgba(244,196,48,.22);color:#a9791a;font-size:22px}
+.partner-invite b{color:#9a6e13}
+.partner-invite small i{font-style:normal;color:#a9791a;font-weight:700}
+@media (max-width:520px){.partner-mark-grid{grid-template-columns:1fr}}
