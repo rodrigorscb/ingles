@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { JsonLd } from "@/components/json-ld";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
 import { PwaRegister } from "@/components/pwa-register";
@@ -76,6 +77,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
+      <head>
+        <Script id="google-adsense" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1775345171814862" crossOrigin="anonymous" strategy="afterInteractive" />
+      </head>
       <body><JsonLd data={siteGraph} /><SiteHeader />{children}<SiteFooter /><PwaRegister /></body>
     </html>
   );
