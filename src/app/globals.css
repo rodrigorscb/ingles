@@ -376,3 +376,6 @@
 .write-model{margin:10px 0;padding:14px 16px;border-radius:12px;background:#eef9f3;border:1px solid rgba(45,138,105,.25)}
 .write-model small{display:block;margin-bottom:5px;color:#1d6a58;font-weight:700;font-size:12px}
 .write-model p{margin:0;color:var(--ink);font-size:16px;font-weight:600}
+
+/* Correção: regra antiga .partner-mark-grid span sobrescrevia os chips de ícone */
+.partner-mark-grid span.partner-icon{min-height:0;border:0;text-align:center;letter-spacing:0;line-height:1;font-size:20px;font-weight:700}
