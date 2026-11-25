@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { SpeechButton } from "@/components/speech-button";
 import { recordLesson } from "@/components/use-game";
 import type { RegisterResult } from "@/lib/gamification";
 import { LessonExerciseItem } from "@/components/lesson-exercise";
+import { augmentPractice } from "@/lib/lesson-practice";
 import { a1Modules, a2Modules, c2Modules, type Lesson } from "@/lib/course";
 import { b1Modules } from "@/lib/next-b1-lessons";
 import { b2Modules } from "@/lib/next-b2-lessons";
@@ -16,7 +17,8 @@ type Props = { lesson: Lesson; index: number; level: CourseLessonLevel; sequence
 type SaveState = "idle" | "saving" | "saved" | "error";
 
 export function LessonFlow({ lesson, index, level, sequence, initialCompleted, profileId }: Props) {
-  const [results, setResults] = useState<boolean[]>(Array(lesson.practice.length).fill(false));
+  const practice = useMemo(() => augmentPractice(lesson), [lesson]);
+  const [results, setResults] = useState<boolean[]>(Array(practice.length).fill(false));
   const [completed, setCompleted] = useState(initialCompleted);
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const [busy, setBusy] = useState(false);
@@ -68,7 +70,7 @@ export function LessonFlow({ lesson, index, level, sequence, initialCompleted, p
   const localIndex = index;
   const nextLesson = currentSequence[localIndex + 1];
   const previousLesson = currentSequence[localIndex - 1];
-  const total = lesson.practice.length;
+  const total = practice.length;
   const resolvedCount = results.filter(Boolean).length;
   const readyToFinish = total === 0 ? true : results.every(Boolean);
 
@@ -104,7 +106,7 @@ export function LessonFlow({ lesson, index, level, sequence, initialCompleted, p
 
       <section className="lesson-section" aria-labelledby="grammar-title"><div className="lesson-section-title"><span className="lesson-section-mark">2</span><div><small>Entenda o padrão</small><h2 id="grammar-title">{lesson.grammar.title}</h2></div></div><p className="grammar-explanation">{lesson.grammar.explanation}</p><div className="grammar-examples">{lesson.grammar.examples.map((example) => <div className="grammar-example" key={example.english}><SpeechButton text={example.english} label="Ouvir" /><p>{example.english}</p><span>{example.portuguese}</span></div>)}</div></section>
 
-      <section className="lesson-section practice-section" aria-labelledby="practice-title"><div className="lesson-section-title"><span className="lesson-section-mark">3</span><div><small>Agora é sua vez</small><h2 id="practice-title">Pratique para lembrar</h2></div></div><p className="practice-intro">Complete as atividades abaixo — pode haver escolha, áudio, ordenar, completar, falar e escrever.</p><div className="practice-questions">{lesson.practice.map((question, questionIndex) => <LessonExerciseItem key={questionIndex} exercise={question} index={questionIndex} resolved={results[questionIndex]} onResolve={handleResolve} />)}</div>{total > 0 && resolvedCount === total && <p className="practice-score" role="status">Você completou todas as {total} atividades. Excelente — agora é só concluir.</p>}</section>
+      <section className="lesson-section practice-section" aria-labelledby="practice-title"><div className="lesson-section-title"><span className="lesson-section-mark">3</span><div><small>Agora é sua vez</small><h2 id="practice-title">Pratique para lembrar</h2></div></div><p className="practice-intro">Complete as atividades abaixo — pode haver escolha, áudio, ordenar, completar, falar e escrever.</p><div className="practice-questions">{practice.map((question, questionIndex) => <LessonExerciseItem key={questionIndex} exercise={question} index={questionIndex} resolved={results[questionIndex]} onResolve={handleResolve} />)}</div>{total > 0 && resolvedCount === total && <p className="practice-score" role="status">Você completou todas as {total} atividades. Excelente — agora é só concluir.</p>}</section>
 
       <section className="lesson-takeaway"><small>Guarde esta estrutura</small><p>{lesson.takeaway}</p><SpeechButton text={lesson.takeaway} label="Ouvir o resumo" /></section>
 
