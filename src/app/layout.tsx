@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { JsonLd } from "@/components/json-ld";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
+import { PwaRegister } from "@/components/pwa-register";
 import { absoluteUrl, organizationId, siteDescription, siteName, siteTitleBrand, siteUrl, websiteId } from "@/lib/site";
 import "./globals.css";
 
@@ -40,6 +41,7 @@ export const metadata: Metadata = {
   description: siteDescription,
   applicationName: siteName,
   category: "education",
+  appleWebApp: { capable: true, title: "Inglês Grátis", statusBarStyle: "default" },
   icons: {
     icon: [{ url: "/favicon.ico" }, { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" }, { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" }],
     apple: "/apple-touch-icon.png",
@@ -64,6 +66,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  themeColor: "#0a2463",
 };
 
 export default function RootLayout({
@@ -73,7 +76,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body><JsonLd data={siteGraph} /><SiteHeader />{children}<SiteFooter /></body>
+      <body><JsonLd data={siteGraph} /><SiteHeader />{children}<SiteFooter /><PwaRegister /></body>
     </html>
   );
 }
