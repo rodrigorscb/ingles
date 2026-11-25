@@ -9,7 +9,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/progresso/", "/admin/", "/conta/"],
+      disallow: ["/progresso/", "/admin/", "/conta/", "/api/", "/auth/"],
     },
     sitemap: new URL("/sitemap.xml", siteUrl).toString(),
   };

@@ -16,11 +16,20 @@ export const levels: Level[] = [
   { code: "C2", name: "Domínio e nuance", description: "Entenda nuances e comunique ideias com naturalidade e precisão.", ageNote: "Desafios avançados de linguagem", color: "ink", plannedLessons: 30 },
 ];
 
+export type ExerciseKind = "choice" | "listen" | "fill" | "order" | "speak" | "write";
 export type LessonExercise = {
+  type?: ExerciseKind;        // ausente = "choice" (compatível com as aulas existentes)
   prompt: string;
-  options: string[];
-  answer: number;
-  explanation: string;
+  explanation?: string;
+  options?: string[];          // choice / listen
+  answer?: number | string | string[]; // choice/listen: índice · fill/order: texto(s) aceito(s)
+  audio?: string;              // listen: texto a ser falado pelo áudio
+  before?: string;             // fill: texto antes da lacuna
+  after?: string;              // fill: texto depois da lacuna
+  words?: string[];            // order: palavras a ordenar
+  target?: string;             // speak: frase a repetir
+  model?: string;              // write: resposta-modelo
+  tip?: string;                // speak/write: orientação
 };
 
 export type Lesson = {
@@ -51,6 +60,11 @@ export const a1ModuleOneLessons: Lesson[] = [
     practice: [
       { prompt: "Você acabou de conhecer alguém. Qual frase significa “Prazer em conhecer você”?", options: ["Where are you from?", "Nice to meet you.", "See you tomorrow."], answer: 1, explanation: "Nice to meet you é a expressão usada ao conhecer alguém. A pergunta sobre origem é Where are you from?" },
       { prompt: "Complete a apresentação: “Hello! ___ name is Maya.”", options: ["My", "Me", "I"], answer: 0, explanation: "My name is… significa “Meu nome é…”. A forma I’m Maya também funciona, mas não usamos I name." },
+      { type: "fill", prompt: "Complete a frase digitando a palavra que falta:", before: "Hello! My", after: "is Maya.", answer: "name", explanation: "My name is… = Meu nome é…" },
+      { type: "order", prompt: "Toque nas palavras na ordem certa para formar a frase:", words: ["Nice", "to", "meet", "you"], answer: "Nice to meet you", explanation: "Nice to meet you = Prazer em conhecer você." },
+      { type: "listen", prompt: "Ouça o áudio e escolha a tradução correta:", audio: "Where are you from?", options: ["Como você está?", "De onde você é?", "Qual é o seu nome?"], answer: 1, explanation: "Where are you from? = De onde você é?" },
+      { type: "speak", prompt: "Agora é a sua vez de falar:", target: "Hi! My name is Ana. Nice to meet you.", tip: "Ouça, repita em voz alta algumas vezes e tente dizer sem olhar." },
+      { type: "write", prompt: "Escreva uma apresentação curta sobre você (nome e de onde é):", model: "Hi! My name is Lucas. I’m from Brazil. Nice to meet you!", tip: "Use I’m from + sua cidade ou país." },
     ],
     takeaway: "Hello! My name is ____. Nice to meet you. Where are you from?",
   },
@@ -443,12 +457,32 @@ export const a1Modules: A1Module[] = [
   { id: "free-time-and-plans", title: "Tempo livre e planos", subtitle: "Compartilhe interesses, convide alguém e combine uma atividade.", lessons: a1ModuleFiveLessons },
 ];
 
-export { nextA1Modules } from "@/lib/next-lessons";
-import { nextA1Modules, a2Lessons, a2Modules } from "@/lib/next-lessons";
+import { nextA1Modules, a2Modules as initialA2Modules } from "@/lib/next-lessons";
+export { nextA1Modules };
+import { a2FinalModules } from "@/lib/next-a2-final-lessons";
+import { b1Modules } from "@/lib/next-b1-lessons";
+import { b2Modules } from "@/lib/next-b2-lessons";
+import { c1Modules } from "@/lib/next-c1-lessons";
+import { c1FinalLessons } from "@/lib/next-c1-final-lessons";
+import { c1CapstoneLessons } from "@/lib/next-c1-capstone-lessons";
+import { c2Modules } from "@/lib/next-c2-lessons";
+export { c2Modules };
 
 a1Modules.push(...nextA1Modules);
-export { a2Lessons, a2Modules };
+export const a2Modules: A1Module[] = initialA2Modules
+  .filter((module) => module.id !== "a2-home-and-community" && module.id !== "a2-project-and-review")
+  .map((module) => module.id === "people-community"
+    ? { ...module, lessons: [...module.lessons, ...(a2FinalModules.find((candidate) => candidate.id === "a2-home-and-community")?.lessons ?? [])] }
+    : module)
+  .concat(a2FinalModules.filter((module) => module.id === "a2-project-and-review"));
+export const a2Lessons: Lesson[] = a2Modules.flatMap((module) => module.lessons);
 export const a1Lessons: Lesson[] = a1Modules.flatMap((module) => module.lessons);
+export const c1PublishedModules: A1Module[] = [
+  c1Modules[0],
+  { ...c1Modules[1], lessons: [...c1Modules[1].lessons.slice(0, 6), ...c1FinalLessons.slice(0, 4)] },
+  { id: "c1-capstone", title: "Projeto crítico C1", subtitle: "Produza uma análise e defenda uma recomendação original.", lessons: [...c1FinalLessons.slice(4), ...c1CapstoneLessons] },
+];
+export { b1Modules, b2Modules, c1Modules };
 
 
 export type PublicationState = "available" | "comingSoon";
@@ -621,7 +655,13 @@ export const courseRoadmap: CourseLevel[] = [
   ] },
 ];
 
-const publishedLessonsBySlug = new Map([...a1Lessons, ...a2Lessons].map((lesson) => [lesson.slug, lesson]));
+const courseContentByLevel: Record<string, Lesson[]> = {
+  B1: b1Modules.flatMap((module) => module.lessons),
+  B2: b2Modules.flatMap((module) => module.lessons),
+  C1: c1PublishedModules.flatMap((module) => module.lessons),
+  C2: c2Modules.flatMap((module) => module.lessons),
+};
+const publishedLessonsBySlug = new Map([...a1Lessons, ...a2Lessons, ...Object.values(courseContentByLevel).flat()].map((lesson) => [lesson.slug, lesson]));
 export const fullCourseRoadmap: CourseLevel[] = courseRoadmap.map((level) => ({
   code: level.code,
   modules: level.modules.map((module) => ({
@@ -630,7 +670,9 @@ export const fullCourseRoadmap: CourseLevel[] = courseRoadmap.map((level) => ({
       ...item,
       lessons: item.lessons.map((planned) => {
         const lesson = publishedLessonsBySlug.get(planned.slug);
-        return lesson ? { ...planned, title: lesson.title, objective: lesson.subtitle, status: "available" as const } : planned;
+        const levelLesson = courseContentByLevel[level.code]?.find((candidate) => candidate.slug === planned.slug);
+        const published = lesson ?? levelLesson;
+        return published ? { ...planned, title: published.title, objective: published.subtitle, status: "available" as const } : planned;
       }),
     })),
   })),
@@ -674,7 +716,8 @@ export function getPlacement(score: number, total: number) {
   const percent = total ? Math.round((score / total) * 100) : 0;
   const index = percent <= 20 ? 0 : percent <= 40 ? 1 : percent <= 60 ? 2 : percent <= 75 ? 3 : percent <= 90 ? 4 : 5;
   const recommended = levels[index];
-  const hasPublishedLessons = recommended.code === "A1" || recommended.code === "A2";
-  const recommendationLevel = recommended.code === "A1" || recommended.code === "A2" ? recommended : levels[1];
+  // Every CEFR level now has published lessons, so the recommendation is always the placed level.
+  const hasPublishedLessons = true;
+  const recommendationLevel = recommended;
   return { percent, level: recommended, hasPublishedLessons, recommendationLevel };
 }

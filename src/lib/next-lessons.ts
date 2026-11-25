@@ -1,5 +1,6 @@
 import type { A1Module, Lesson } from "@/lib/course";
-import { a2ContinuationModules, a2ContinuationLessons } from "@/lib/next-a2-lessons";
+import { a2ContinuationLessons } from "@/lib/next-a2-lessons";
+import { a2FinalModules } from "@/lib/next-a2-final-lessons";
 
 type Phrase = [string, string, string];
 type Exercise = [string, string[], number, string];
@@ -54,8 +55,28 @@ export const nextA1Modules: A1Module[] = [
 
 export const firstA2Lesson: Lesson = buildLesson({id:"last-weekend",title:"Last weekend",subtitle:"Conte o que fez no fim de semana passado.",objective:"Narrar três atividades concluídas no fim de semana usando verbos comuns no passado e marcadores de tempo.",duration:12,focus:"Simple past afirmativo: verbos comuns e marcadores de tempo",intro:"Uma conversa sobre o fim de semana é uma forma natural de contar experiências recentes. Nesta primeira aula A2, você vai montar uma pequena narrativa com começo, sequência e encerramento, distinguindo verbos regulares e alguns irregulares frequentes.",phrases:[["What did you do last weekend?","O que você fez no fim de semana passado?","Did marca a pergunta no passado; o verbo principal volta à forma base."],["I visited my cousins on Saturday.","Visitei meus primos no sábado.","Visited é passado regular de visit; on acompanha dia."],["We went to the beach and took some photos.","Fomos à praia e tiramos algumas fotos.","Went e took são formas irregulares de go e take."],["It was relaxing, but we came home late.","Foi relaxante, mas voltamos tarde para casa.","Was é passado de be para I/he/she/it; came é passado de come."]],grammarTitle:"Narrar eventos no simple past",grammar:"Use simple past para ações concluídas em período passado, com marcadores como yesterday, last weekend e on Saturday. Verbos regulares recebem -ed (visit → visited); verbos irregulares mudam (go → went, take → took). Em perguntas com did, use a forma base: What did you do? Em negativas, didn’t + verbo base.",examples:[["We watched a film on Friday.","Assistimos a um filme na sexta-feira."],["I went to the market, then I cooked lunch.","Fui ao mercado e depois preparei o almoço."],["Did you see your friends?","Você viu seus amigos?"],["I didn’t stay home. I visited my aunt.","Não fiquei em casa. Visitei minha tia."]],practice:[["Complete: “Last Saturday, we ___ to the park.”",["went","go","did went"],0,"A afirmativa no passado usa went, passado irregular de go."],["Qual pergunta está correta?",["What did you do last weekend?","What did you did last weekend?","What you did last weekend?"],0,"Após did, use o verbo base do."],["Passe “watch” para o simple past:",["watched","watchs","did watched"],0,"Verbo regular: watch + -ed = watched."],["Complete a negativa: “I didn’t ___ TV.”",["watch","watched","watches"],0,"Após didn’t, use verbo base."],["Qual marcador indica período passado concluído?",["last weekend","next weekend","every weekend"],0,"Last weekend situa a ação no fim de semana passado."]],takeaway:"Last weekend, I ____. On ____, I ____. Then I ____. It was ____."});
 
+const a2LessonBySlug = new Map([...a2ContinuationLessons, ...a2FinalModules.flatMap((module) => module.lessons)].map((lesson) => [lesson.slug, lesson]));
+const publishedNewA2Slugs = [
+  "a-special-day", "childhood-memories", "past-questions", "stories-review",
+  "plans-for-next-month", "travel-experiences", "making-arrangements", "what-i-have-done", "my-life-so-far",
+  "finding-the-right-size", "returns-and-receipts", "at-the-post-office", "booking-an-appointment", "services-review",
+  "something-is-wrong", "at-the-doctors", "directions-in-detail", "explaining-what-happened", "a2-practical-review",
+  "describing-people", "getting-along", "community-places", "invitations-and-events", "people-review", "moving-house",
+  "sharing-a-home", "community-events", "being-a-good-neighbor", "a2-community-project", "first-then-finally", "a-surprising-day",
+  "asking-follow-up-questions", "storytelling-practice", "a2-story-review", "plan-a-short-trip", "when-plans-change",
+  "travel-roleplay", "a2-speaking-project", "a2-final-review",
+] as const;
+const lessonsForPublishedSlugs = (slugs: readonly string[]) => slugs.map((slug) => {
+  const lesson = a2LessonBySlug.get(slug);
+  if (!lesson) throw new Error(`Missing A2 lesson content: ${slug}`);
+  return lesson;
+});
+
 export const a2Modules: A1Module[] = [
-  {id:"stories-from-my-life",title:"Histórias da minha vida",subtitle:"Conte experiências passadas e fale de planos próximos.",lessons:[firstA2Lesson,...a2ContinuationModules[0].lessons]},
-  ...a2ContinuationModules.slice(1),
+  { id: "stories-from-my-life", title: "Histórias da minha vida", subtitle: "Conte experiências passadas e fale de planos próximos.", lessons: [firstA2Lesson, ...lessonsForPublishedSlugs(publishedNewA2Slugs.slice(0, 9))] },
+  { id: "everyday-independence", title: "Mais autonomia no dia a dia", subtitle: "Resolva situações de serviço, compras, saúde e deslocamento.", lessons: lessonsForPublishedSlugs(publishedNewA2Slugs.slice(9, 19)) },
+  { id: "people-community", title: "Pessoas e comunidade", subtitle: "Descreva relações, lugares e acontecimentos de sua comunidade.", lessons: lessonsForPublishedSlugs(publishedNewA2Slugs.slice(19, 25)) },
+  { id: "a2-home-and-community", title: "Casa e comunidade", subtitle: "Pratique responsabilidades compartilhadas e espaços da vizinhança.", lessons: a2FinalModules.find((module) => module.id === "a2-home-and-community")?.lessons ?? [] },
+  { id: "a2-project-and-review", title: "Projeto e revisão A2", subtitle: "Integre narrativas, planos e situações práticas.", lessons: lessonsForPublishedSlugs(publishedNewA2Slugs.slice(25, 40)) },
 ];
-export const a2Lessons: Lesson[] = [firstA2Lesson,...a2ContinuationLessons];
+export const a2Lessons: Lesson[] = a2Modules.flatMap((module) => module.lessons);

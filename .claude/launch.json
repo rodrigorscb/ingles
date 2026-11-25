@@ -2,10 +2,17 @@
   "version": "0.0.1",
   "configurations": [
     {
+      "name": "ingles",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "start"],
+      "port": 3000
+    },
+    {
       "name": "ingles-dev",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
-      "port": 3000
+      "runtimeArgs": ["run", "dev", "--", "--port", "3001"],
+      "env": { "NEXT_TELEMETRY_DISABLED": "1" },
+      "port": 3001
     }
   ]
 }
