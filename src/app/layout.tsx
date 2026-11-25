@@ -62,6 +62,7 @@ export const metadata: Metadata = {
   },
   robots: process.env.VERCEL_ENV === "preview" || process.env.NEXT_PUBLIC_NOINDEX === "true" ? { index: false, follow: false } : { index: true, follow: true },
   manifest: "/manifest.webmanifest",
+  other: { "google-adsense-account": "ca-pub-1775345171814862" },
 };
 
 export const viewport: Viewport = {
