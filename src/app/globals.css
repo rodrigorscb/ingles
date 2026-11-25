@@ -303,3 +303,41 @@
 .n-green .partner-icon{background:rgba(45,138,105,.12);color:var(--green)}
 .n-purple .partner-icon{background:rgba(120,91,180,.13);color:var(--purple)}
 @media (max-width:620px){.network-grid{grid-template-columns:1fr}}
+
+/* === Gamificação: faixa de stats === */
+.game-strip{display:flex;flex-wrap:wrap;align-items:center;gap:14px 26px;margin:22px 0 4px;padding:18px 22px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(120deg,#fffdf4,#fff);box-shadow:0 2px 10px rgba(23,43,77,.05)}
+.game-stat{display:flex;align-items:center;gap:12px;min-width:0}
+.game-stat>div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.game-stat b{color:var(--ink);font-size:17px;letter-spacing:-.01em}
+.game-stat small{color:#6c798d;font-size:11px}
+.game-rank-icon,.game-flame,.game-trophy{display:grid;place-items:center;width:42px;height:42px;flex:none;border-radius:12px;font-size:22px;line-height:1;background:rgba(244,196,48,.16)}
+.game-flame{background:rgba(203,114,77,.14)}
+.game-trophy{background:rgba(45,138,105,.12)}
+.game-xp-track{display:block;width:150px;max-width:40vw;height:6px;margin-top:5px;border-radius:999px;background:#eef2f8;overflow:hidden}
+.game-xp-track i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#f4c430,#e8b61f);transition:width .4s ease}
+.game-badge-row{display:flex;gap:4px;margin-top:4px}
+.game-badge-dot{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:#eef2f8;color:#b7c0cf;font-size:12px}
+.game-badge-dot.got{background:rgba(244,196,48,.2)}
+.game-cta{margin-left:auto;color:var(--blue);font-size:13px;font-weight:700;text-decoration:none;white-space:nowrap}
+@media (max-width:560px){.game-strip{gap:12px 18px;padding:16px}.game-xp-track{width:120px}.game-cta{margin-left:0;flex-basis:100%}}
+
+/* === Gamificação: celebração ao concluir === */
+.game-celebration{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:20px;background:rgba(13,22,43,.55);backdrop-filter:blur(3px);animation:celeb-fade .2s ease}
+@keyframes celeb-fade{from{opacity:0}to{opacity:1}}
+.game-celebration-card{position:relative;z-index:1;width:min(100%,420px);padding:30px 26px 24px;text-align:center;border-radius:22px;background:#fff;box-shadow:0 30px 70px rgba(13,22,43,.35);animation:celeb-pop .32s cubic-bezier(.2,.9,.3,1.3)}
+@keyframes celeb-pop{from{opacity:0;transform:scale(.8) translateY(12px)}to{opacity:1;transform:none}}
+.celebrate-emoji{display:block;font-size:46px;line-height:1}
+.game-celebration-card h2{margin:8px 0 14px;color:var(--ink);font-size:24px;letter-spacing:-.03em}
+.celebrate-rewards{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-bottom:12px}
+.reward-xp{padding:8px 16px;border-radius:999px;background:#f4c430;color:var(--ink);font-weight:800;font-size:15px}
+.reward-streak{padding:8px 16px;border-radius:999px;background:rgba(203,114,77,.14);color:#9a4f2e;font-weight:700;font-size:14px}
+.celebrate-badges{margin:4px 0 16px;padding:12px;border-radius:14px;background:#fffdf4;border:1px dashed rgba(214,162,21,.5)}
+.celebrate-badges small{display:block;margin-bottom:6px;color:#9a6e13;font-weight:700;font-size:12px}
+.celebrate-badges div{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.celebrate-badge{padding:6px 12px;border-radius:999px;background:#fff;border:1px solid rgba(214,162,21,.4);color:var(--ink);font-weight:700;font-size:13px}
+.celebrate-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:4px}
+.celebrate-actions .button{min-height:44px}
+.confetti{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.confetti span{position:absolute;top:-12px;width:9px;height:14px;border-radius:2px;opacity:.9;animation:confetti-fall 2.4s linear infinite}
+@keyframes confetti-fall{0%{transform:translateY(-10px) rotate(0);opacity:1}100%{transform:translateY(102vh) rotate(540deg);opacity:.85}}
+@media (prefers-reduced-motion:reduce){.confetti span{animation:none;display:none}.game-celebration-card{animation:none}}

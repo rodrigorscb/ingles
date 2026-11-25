@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { SpeechButton } from "@/components/speech-button";
+import { recordLesson } from "@/components/use-game";
+import type { RegisterResult } from "@/lib/gamification";
 import { a1Modules, a2Modules, c2Modules, type Lesson } from "@/lib/course";
 import { b1Modules } from "@/lib/next-b1-lessons";
 import { b2Modules } from "@/lib/next-b2-lessons";
@@ -17,6 +19,7 @@ export function LessonFlow({ lesson, index, level, sequence, initialCompleted, p
   const [completed, setCompleted] = useState(initialCompleted);
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const [busy, setBusy] = useState(false);
+  const [celebration, setCelebration] = useState<RegisterResult | null>(null);
 
   async function finishLesson() {
     setCompleted(true);
@@ -28,6 +31,7 @@ export function LessonFlow({ lesson, index, level, sequence, initialCompleted, p
         localStorage.setItem(key, JSON.stringify(current));
         window.dispatchEvent(new Event("curso-ingles-demo-change"));
         setSaveState("saved");
+        setCelebration(recordLesson(lesson.id));
       } catch {
         setSaveState("error");
       }
@@ -43,6 +47,7 @@ export function LessonFlow({ lesson, index, level, sequence, initialCompleted, p
       });
       if (!response.ok) throw new Error("save failed");
       setSaveState("saved");
+      setCelebration(recordLesson(lesson.id));
     } catch {
       setSaveState("error");
       setCompleted(initialCompleted);
@@ -62,6 +67,16 @@ export function LessonFlow({ lesson, index, level, sequence, initialCompleted, p
   const readyToFinish = allAnswered && score === lesson.practice.length;
 
   return <div className="lesson-workspace">
+    {celebration && <div className="game-celebration" role="dialog" aria-label="Aula concluída">
+      <div className="confetti" aria-hidden="true">{Array.from({ length: 16 }).map((_, i) => <span key={i} style={{ left: `${(i * 6.25) % 100}%`, animationDelay: `${(i % 6) * 0.12}s`, background: ["#f4c430", "#2d8a69", "#315eea", "#e8b61f"][i % 4] }} />)}</div>
+      <div className="game-celebration-card">
+        <span className="celebrate-emoji" aria-hidden="true">🎉</span>
+        <h2>Aula concluída!</h2>
+        <div className="celebrate-rewards">{celebration.gainedXp > 0 && <span className="reward-xp">+{celebration.gainedXp} XP</span>}<span className="reward-streak">🔥 {celebration.streak} {celebration.streak === 1 ? "dia" : "dias"} de ofensiva</span></div>
+        {celebration.newBadges.length > 0 && <div className="celebrate-badges"><small>Nova conquista desbloqueada!</small><div>{celebration.newBadges.map((badge) => <span key={badge.id} className="celebrate-badge">{badge.icon} {badge.name}</span>)}</div></div>}
+        <div className="celebrate-actions">{nextLesson ? <Link href={`/aula/${nextLesson.slug}`} className="button button-primary" onClick={() => setCelebration(null)}>Próxima aula →</Link> : <Link href="/curso" className="button button-primary" onClick={() => setCelebration(null)}>Voltar à trilha →</Link>}<button type="button" className="button button-quiet" onClick={() => setCelebration(null)}>Fechar</button></div>
+      </div>
+    </div>}
     <aside className="lesson-sidebar" aria-label="Aulas do módulo">
       <Link href="/curso" className="lesson-back">← Trilha {level}</Link>
       <p className="lesson-side-title">{currentModule?.title ?? `Trilha ${level}`}</p>
