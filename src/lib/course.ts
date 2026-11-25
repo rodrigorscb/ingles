@@ -16,11 +16,20 @@ export const levels: Level[] = [
   { code: "C2", name: "Domínio e nuance", description: "Entenda nuances e comunique ideias com naturalidade e precisão.", ageNote: "Desafios avançados de linguagem", color: "ink", plannedLessons: 30 },
 ];
 
+export type ExerciseKind = "choice" | "listen" | "fill" | "order" | "speak" | "write";
 export type LessonExercise = {
+  type?: ExerciseKind;        // ausente = "choice" (compatível com as aulas existentes)
   prompt: string;
-  options: string[];
-  answer: number;
-  explanation: string;
+  explanation?: string;
+  options?: string[];          // choice / listen
+  answer?: number | string | string[]; // choice/listen: índice · fill/order: texto(s) aceito(s)
+  audio?: string;              // listen: texto a ser falado pelo áudio
+  before?: string;             // fill: texto antes da lacuna
+  after?: string;              // fill: texto depois da lacuna
+  words?: string[];            // order: palavras a ordenar
+  target?: string;             // speak: frase a repetir
+  model?: string;              // write: resposta-modelo
+  tip?: string;                // speak/write: orientação
 };
 
 export type Lesson = {
@@ -51,6 +60,11 @@ export const a1ModuleOneLessons: Lesson[] = [
     practice: [
       { prompt: "Você acabou de conhecer alguém. Qual frase significa “Prazer em conhecer você”?", options: ["Where are you from?", "Nice to meet you.", "See you tomorrow."], answer: 1, explanation: "Nice to meet you é a expressão usada ao conhecer alguém. A pergunta sobre origem é Where are you from?" },
       { prompt: "Complete a apresentação: “Hello! ___ name is Maya.”", options: ["My", "Me", "I"], answer: 0, explanation: "My name is… significa “Meu nome é…”. A forma I’m Maya também funciona, mas não usamos I name." },
+      { type: "fill", prompt: "Complete a frase digitando a palavra que falta:", before: "Hello! My", after: "is Maya.", answer: "name", explanation: "My name is… = Meu nome é…" },
+      { type: "order", prompt: "Toque nas palavras na ordem certa para formar a frase:", words: ["Nice", "to", "meet", "you"], answer: "Nice to meet you", explanation: "Nice to meet you = Prazer em conhecer você." },
+      { type: "listen", prompt: "Ouça o áudio e escolha a tradução correta:", audio: "Where are you from?", options: ["Como você está?", "De onde você é?", "Qual é o seu nome?"], answer: 1, explanation: "Where are you from? = De onde você é?" },
+      { type: "speak", prompt: "Agora é a sua vez de falar:", target: "Hi! My name is Ana. Nice to meet you.", tip: "Ouça, repita em voz alta algumas vezes e tente dizer sem olhar." },
+      { type: "write", prompt: "Escreva uma apresentação curta sobre você (nome e de onde é):", model: "Hi! My name is Lucas. I’m from Brazil. Nice to meet you!", tip: "Use I’m from + sua cidade ou país." },
     ],
     takeaway: "Hello! My name is ____. Nice to meet you. Where are you from?",
   },

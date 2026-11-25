@@ -46,8 +46,23 @@ export function validateCourseRoadmap(): string[] {
       const baselineLesson = levelCode === "A1";
       if (!lesson.objective.trim() || !lesson.intro.trim() || !lesson.takeaway.trim() || lesson.phrases.length < (baselineLesson ? 3 : 4) || lesson.practice.length < (baselineLesson ? 2 : 4) || !lesson.grammar.explanation.trim() || lesson.grammar.examples.length < (baselineLesson ? 2 : 4)) errors.push(`Published lesson is incomplete: ${lesson.slug}`);
       for (const question of lesson.practice) {
-        if (question.options.length < 3 || question.answer < 0 || question.answer >= question.options.length || !question.explanation.trim()) errors.push(`Invalid practice question in ${lesson.slug}: ${question.prompt}`);
-        if (new Set(question.options).size !== question.options.length) errors.push(`Duplicate answer option in ${lesson.slug}: ${question.prompt}`);
+        const kind = question.type ?? "choice";
+        if (!question.prompt.trim()) errors.push(`Practice question without prompt in ${lesson.slug}`);
+        if (kind === "choice" || kind === "listen") {
+          const options = question.options;
+          if (!options || options.length < 3 || typeof question.answer !== "number" || question.answer < 0 || question.answer >= options.length || !question.explanation?.trim()) errors.push(`Invalid practice question in ${lesson.slug}: ${question.prompt}`);
+          if (options && new Set(options).size !== options.length) errors.push(`Duplicate answer option in ${lesson.slug}: ${question.prompt}`);
+          if (kind === "listen" && !question.audio?.trim()) errors.push(`Missing audio in listen question in ${lesson.slug}: ${question.prompt}`);
+        } else if (kind === "fill" || kind === "order") {
+          const answer = question.answer;
+          const hasAnswer = typeof answer === "string" ? answer.trim().length > 0 : Array.isArray(answer) ? answer.length > 0 : false;
+          if (!hasAnswer) errors.push(`Missing answer in ${kind} question in ${lesson.slug}: ${question.prompt}`);
+          if (kind === "order" && (!question.words || question.words.length < 2)) errors.push(`Missing words in order question in ${lesson.slug}: ${question.prompt}`);
+        } else if (kind === "speak") {
+          if (!question.target?.trim()) errors.push(`Missing target in speak question in ${lesson.slug}: ${question.prompt}`);
+        } else if (kind === "write") {
+          if (!question.model?.trim()) errors.push(`Missing model in write question in ${lesson.slug}: ${question.prompt}`);
+        }
       }
     }
   }
