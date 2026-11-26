@@ -38,7 +38,7 @@ export function LessonExerciseItem({ exercise, index, resolved, onResolve }: Pro
       <fieldset className="practice-question">
         <legend><span>{num}</span>{exercise.prompt}</legend>
         {kind === "listen" && exercise.audio && (
-          <div className="exercise-audio"><SpeechButton text={exercise.audio} label="▶ Ouvir o áudio" /><small>Ouça quantas vezes quiser e escolha a resposta.</small></div>
+          <div className="exercise-audio"><SpeechButton text={exercise.audio} label="Ouvir o áudio" /><small>Ouça quantas vezes quiser e escolha a resposta.</small></div>
         )}
         <div className="practice-options">
           {(exercise.options ?? []).map((option, optionIndex) => (
@@ -102,7 +102,7 @@ export function LessonExerciseItem({ exercise, index, resolved, onResolve }: Pro
         <legend><span>{num}</span>{exercise.prompt}</legend>
         <div className="exercise-speak">
           <p className="speak-target">{exercise.target}</p>
-          <SpeechButton text={exercise.target ?? ""} label="▶ Ouvir" />
+          <SpeechButton text={exercise.target ?? ""} label="Ouvir" />
           <small>{exercise.tip ?? "Ouça e repita em voz alta algumas vezes."}</small>
         </div>
         <button type="button" className="selfcheck-btn" onClick={() => onResolve(index, true)} disabled={resolved}>{resolved ? "Praticado ✓" : "Já pratiquei em voz alta"}</button>

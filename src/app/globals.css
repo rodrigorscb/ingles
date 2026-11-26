@@ -379,3 +379,32 @@
 
 /* Correção: regra antiga .partner-mark-grid span sobrescrevia os chips de ícone */
 .partner-mark-grid span.partner-icon{min-height:0;border:0;text-align:center;letter-spacing:0;line-height:1;font-size:20px;font-weight:700}
+
+/* Correção de responsividade: blocos dos novos exercícios devem limpar o float da legenda */
+.practice-question .exercise-audio,.practice-question .exercise-fill,.practice-question .order-answer,.practice-question .order-words,.practice-question .order-actions,.practice-question .exercise-speak,.practice-question .write-area,.practice-question .write-model,.practice-question .write-tip{clear:both}
+.practice-question .write-area{display:block;max-width:100%;box-sizing:border-box}
+.practice-question .fill-input{min-width:0;max-width:100%}
+.practice-question .exercise-fill>span{min-width:0;overflow-wrap:anywhere}
+.practice-question .selfcheck-btn,.practice-question>.exercise-check{display:inline-block;clear:both}
+.speak-target{overflow-wrap:anywhere}
+
+/* === Conta obrigatória para praticar === */
+.account-gate{display:grid;justify-items:start;gap:10px;padding:24px 22px;border:1px solid rgba(214,162,21,.45);border-radius:18px;background:linear-gradient(160deg,#fffdf4,#fff 60%);box-shadow:0 10px 30px rgba(23,43,77,.06)}
+.account-gate-icon{display:grid;place-items:center;width:46px;height:46px;border-radius:14px;background:rgba(244,196,48,.22);font-size:22px}
+.account-gate h3{margin:2px 0 0;color:var(--ink);font-size:22px;letter-spacing:-.03em;line-height:1.2}
+.account-gate p{margin:0;color:#4f6272;font-size:15px;line-height:1.6}
+.account-gate-perks{display:grid;gap:6px;margin:4px 0 2px;padding:0;list-style:none;color:var(--ink);font-size:14px;font-weight:600}
+.account-gate-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px}
+.account-gate-actions .button{margin-top:0}
+.account-gate>small{color:#6c798d;font-size:12px}
+.lesson-completion>.button{flex:none}
+
+/* === Faixa de stats: convite para criar conta === */
+.game-strip-cta{gap:14px 18px}
+.game-cta-copy{display:flex;flex:1 1 280px;flex-direction:column;gap:3px;min-width:0}
+.game-cta-copy b{color:var(--ink);font-size:17px;letter-spacing:-.01em}
+.game-cta-copy small{color:#6c798d;font-size:13px;line-height:1.5}
+.game-cta-actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+.game-cta-actions .button{margin-top:0;min-height:44px}
+.game-strip.is-loading{opacity:.6}
+@media (max-width:560px){.account-gate{padding:20px 16px}.account-gate-actions .button{flex:1 1 100%}.game-cta-actions{flex-basis:100%}.game-cta-actions .button{flex:1 1 auto}}
