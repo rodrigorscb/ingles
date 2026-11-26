@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { LessonFlow } from "@/components/lesson-flow";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getPublishedLesson } from "@/lib/published-lessons";
+import { ensureLearnerProfiles } from "@/lib/learner-profile";
 import { JsonLd } from "@/components/json-ld";
 import { absoluteUrl, breadcrumbs, organizationRef } from "@/lib/site";
 
@@ -31,17 +32,26 @@ export default async function LessonPage({ params, searchParams }: Props) {
   if (!entry) notFound();
   let profileId: string | undefined;
   let initialCompleted = false;
+  let signedIn = false;
+  const accountsEnabled = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 
-  if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-    const supabase = await createSupabaseServerClient();
-    const { data: auth } = await supabase.auth.getClaims();
-    if (auth?.claims?.sub) {
-      const { data: profiles } = await supabase.from("learner_profiles").select("id").order("created_at", { ascending: true });
-      profileId = profiles?.find((profile) => profile.id === query.profile)?.id || profiles?.[0]?.id;
-      if (profileId) {
-        const { data: completed } = await supabase.from("lesson_progress").select("id").eq("learner_profile_id", profileId).eq("lesson_id", entry.lesson.id).maybeSingle();
-        initialCompleted = Boolean(completed);
+  if (accountsEnabled) {
+    try {
+      const supabase = await createSupabaseServerClient();
+      const { data: auth } = await supabase.auth.getClaims();
+      const userId = auth?.claims?.sub;
+      if (userId) {
+        signedIn = true;
+        // Cria um perfil automaticamente no primeiro acesso, para o progresso já ser salvo.
+        const profiles = await ensureLearnerProfiles(supabase, userId);
+        profileId = profiles.find((profile) => profile.id === query.profile)?.id || profiles[0]?.id;
+        if (profileId) {
+          const { data: completed } = await supabase.from("lesson_progress").select("id").eq("learner_profile_id", profileId).eq("lesson_id", entry.lesson.id).maybeSingle();
+          initialCompleted = Boolean(completed);
+        }
       }
+    } catch (error) {
+      console.error("[lesson] Unable to load the learner session:", error instanceof Error ? error.name : "unknown error");
     }
   }
   const seo = lessonSeo(entry);
@@ -63,5 +73,5 @@ export default async function LessonPage({ params, searchParams }: Props) {
     isPartOf: { "@type": "Course", "@id": absoluteUrl(`/curso#${entry.level.toLowerCase()}`), name: `Curso de inglês ${entry.level} grátis` },
     provider: organizationRef,
   };
-  return <main className="inner-page lesson-page"><JsonLd data={[resource, breadcrumbs([["Início", "/"], ["Curso de inglês", "/curso"], [`Aulas ${entry.level}`, "/curso"], [entry.lesson.title, `/aula/${entry.lesson.slug}`]])]} /><div className="wrap inner-wrap"><LessonFlow lesson={entry.lesson} index={entry.index} level={entry.level} sequence={entry.sequence} initialCompleted={initialCompleted} profileId={profileId} /></div></main>;
+  return <main className="inner-page lesson-page"><JsonLd data={[resource, breadcrumbs([["Início", "/"], ["Curso de inglês", "/curso"], [`Aulas ${entry.level}`, "/curso"], [entry.lesson.title, `/aula/${entry.lesson.slug}`]])]} /><div className="wrap inner-wrap"><LessonFlow lesson={entry.lesson} index={entry.index} level={entry.level} sequence={entry.sequence} initialCompleted={initialCompleted} profileId={profileId} requireAccount={accountsEnabled && !signedIn} /></div></main>;
 }

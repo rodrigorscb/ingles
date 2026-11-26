@@ -4,6 +4,7 @@ import { createLearnerProfile } from "@/app/auth/profile-actions";
 import { LocalDemoProgress } from "@/components/local-demo-progress";
 import { a1Lessons, a1Modules, a2Lessons, a2Modules, b1Modules, b2Modules, c1PublishedModules, c2Modules } from "@/lib/course";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { ensureLearnerProfiles } from "@/lib/learner-profile";
 
 export const metadata: Metadata = { title: "Seu progresso", robots: { index: false, follow: false } };
 type Props = { searchParams: Promise<{ profile?: string; error?: string; saved?: string }> };
@@ -27,6 +28,7 @@ export default async function ProgressPage({ searchParams }: Props) {
       if (authError) throw authError;
       if (auth?.claims?.sub) {
         signedIn = true;
+        await ensureLearnerProfiles(supabase, auth.claims.sub);
         const { data, error: profilesError } = await supabase.from("learner_profiles").select("id, display_name, age_band, suggested_level").order("created_at", { ascending: true });
         if (profilesError) throw profilesError;
         profiles = data || [];

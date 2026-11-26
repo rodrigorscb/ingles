@@ -8,9 +8,9 @@ function safeNextPath(value: FormDataEntryValue | null) {
   return path.startsWith("/") && !path.startsWith("//") && !path.includes("\\") ? path : "/progresso";
 }
 
-function confirmationRedirect() {
+function confirmationRedirect(next = "/progresso") {
   const origin = process.env.NEXT_PUBLIC_SITE_URL || new URL(process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000").origin;
-  return new URL("/auth/callback?next=/progresso", origin).toString();
+  return new URL(`/auth/callback?next=${encodeURIComponent(next)}`, origin).toString();
 }
 
 export async function signInAction(formData: FormData) {
@@ -36,13 +36,15 @@ export async function signUpAction(formData: FormData) {
   const password = String(formData.get("password") ?? "");
   const displayName = String(formData.get("displayName") ?? "Responsável").trim().slice(0, 80) || "Responsável";
   const guardianDeclaration = formData.get("guardianDeclaration") === "on";
-  if (!email || password.length < 8 || !guardianDeclaration) redirect("/login?mode=signup&error=validation");
+  const next = safeNextPath(formData.get("next"));
+  const nextParam = `&next=${encodeURIComponent(next)}`;
+  if (!email || password.length < 8 || !guardianDeclaration) redirect(`/login?mode=signup&error=validation${nextParam}`);
 
   let signUpError: "signup" | "signup-unavailable" | undefined;
   let signedInImmediately = false;
   try {
     const supabase = await createSupabaseServerClient();
-    const emailRedirectTo = confirmationRedirect();
+    const emailRedirectTo = confirmationRedirect(next);
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -65,8 +67,8 @@ export async function signUpAction(formData: FormData) {
     signUpError = "signup-unavailable";
     console.error("[auth] Sign-up request failed:", error instanceof Error ? error.name : "unknown error");
   }
-  if (signUpError) redirect(`/login?mode=signup&error=${signUpError}`);
-  redirect(signedInImmediately ? "/progresso" : "/login?message=check-email");
+  if (signUpError) redirect(`/login?mode=signup&error=${signUpError}${nextParam}`);
+  redirect(signedInImmediately ? next : `/login?message=check-email${nextParam}`);
 }
 
 export async function resendConfirmationAction(formData: FormData) {

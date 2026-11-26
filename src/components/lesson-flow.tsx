@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { SpeechButton } from "@/components/speech-button";
 import { recordLesson } from "@/components/use-game";
-import type { RegisterResult } from "@/lib/gamification";
+import { badges, emptyGame, type RegisterResult } from "@/lib/gamification";
 import { LessonExerciseItem } from "@/components/lesson-exercise";
 import { augmentPractice } from "@/lib/lesson-practice";
 import { a1Modules, a2Modules, c2Modules, type Lesson } from "@/lib/course";
@@ -13,10 +13,14 @@ import { b2Modules } from "@/lib/next-b2-lessons";
 import { c1PublishedModules } from "@/lib/course";
 import type { CourseLessonLevel } from "@/lib/published-lessons";
 
-type Props = { lesson: Lesson; index: number; level: CourseLessonLevel; sequence: Lesson[]; initialCompleted: boolean; profileId?: string };
+type Props = { lesson: Lesson; index: number; level: CourseLessonLevel; sequence: Lesson[]; initialCompleted: boolean; profileId?: string; requireAccount?: boolean };
 type SaveState = "idle" | "saving" | "saved" | "error";
+type ServerSave = { gainedXp?: number; streakUp?: boolean; newBadges?: string[]; stats?: { xp: number; streak: number; best: number; completed: number } };
 
-export function LessonFlow({ lesson, index, level, sequence, initialCompleted, profileId }: Props) {
+export function LessonFlow({ lesson, index, level, sequence, initialCompleted, profileId, requireAccount = false }: Props) {
+  const lessonPath = `/aula/${lesson.slug}`;
+  const signupHref = `/login?mode=signup&next=${encodeURIComponent(lessonPath)}`;
+  const signinHref = `/login?mode=signin&next=${encodeURIComponent(lessonPath)}`;
   const practice = useMemo(() => augmentPractice(lesson), [lesson]);
   const [results, setResults] = useState<boolean[]>(Array(practice.length).fill(false));
   const [completed, setCompleted] = useState(initialCompleted);
@@ -49,8 +53,17 @@ export function LessonFlow({ lesson, index, level, sequence, initialCompleted, p
         body: JSON.stringify({ profileId, lessonId: lesson.id }),
       });
       if (!response.ok) throw new Error("save failed");
+      const data = (await response.json()) as ServerSave;
       setSaveState("saved");
-      setCelebration(recordLesson(lesson.id));
+      // XP, ofensiva e conquistas vêm do servidor (progresso salvo na conta).
+      const stats = data.stats ?? { xp: 0, streak: 1, best: 1, completed: 0 };
+      setCelebration({
+        state: { ...emptyGame, xp: stats.xp, streak: stats.streak, best: stats.best },
+        gainedXp: data.gainedXp ?? 0,
+        newBadges: badges.filter((badge) => (data.newBadges ?? []).includes(badge.id)),
+        streak: stats.streak,
+        streakUp: Boolean(data.streakUp),
+      });
     } catch {
       setSaveState("error");
       setCompleted(initialCompleted);
@@ -106,11 +119,19 @@ export function LessonFlow({ lesson, index, level, sequence, initialCompleted, p
 
       <section className="lesson-section" aria-labelledby="grammar-title"><div className="lesson-section-title"><span className="lesson-section-mark">2</span><div><small>Entenda o padrão</small><h2 id="grammar-title">{lesson.grammar.title}</h2></div></div><p className="grammar-explanation">{lesson.grammar.explanation}</p><div className="grammar-examples">{lesson.grammar.examples.map((example) => <div className="grammar-example" key={example.english}><SpeechButton text={example.english} label="Ouvir" /><p>{example.english}</p><span>{example.portuguese}</span></div>)}</div></section>
 
-      <section className="lesson-section practice-section" aria-labelledby="practice-title"><div className="lesson-section-title"><span className="lesson-section-mark">3</span><div><small>Agora é sua vez</small><h2 id="practice-title">Pratique para lembrar</h2></div></div><p className="practice-intro">Complete as atividades abaixo — pode haver escolha, áudio, ordenar, completar, falar e escrever.</p><div className="practice-questions">{practice.map((question, questionIndex) => <LessonExerciseItem key={questionIndex} exercise={question} index={questionIndex} resolved={results[questionIndex]} onResolve={handleResolve} />)}</div>{total > 0 && resolvedCount === total && <p className="practice-score" role="status">Você completou todas as {total} atividades. Excelente — agora é só concluir.</p>}</section>
+      <section className="lesson-section practice-section" aria-labelledby="practice-title"><div className="lesson-section-title"><span className="lesson-section-mark">3</span><div><small>Agora é sua vez</small><h2 id="practice-title">Pratique para lembrar</h2></div></div>{requireAccount ? <div className="account-gate">
+          <span className="account-gate-icon" aria-hidden="true">🔒</span>
+          <h3>Crie sua conta grátis para praticar</h3>
+          <p>Esta aula tem <b>{total} atividades</b> — escolha, ordenar, fala e mais. Com uma conta gratuita você pratica, ganha XP e mantém seu progresso salvo em qualquer dispositivo.</p>
+          <ul className="account-gate-perks"><li>✓ Progresso salvo no celular e no computador</li><li>🔥 Ofensiva diária, XP e conquistas</li><li>↗ Continue sempre de onde parou</li></ul>
+          <div className="account-gate-actions"><Link className="button button-primary" href={signupHref}>Criar conta grátis <span aria-hidden="true">↗</span></Link><Link className="button button-quiet" href={signinHref}>Já tenho conta</Link></div>
+          <small>Leva menos de 1 minuto: nome, e-mail e senha. Sem cartão.</small>
+        </div> : <><p className="practice-intro">Complete as atividades abaixo — pode haver escolha, áudio, ordenar, completar, falar e escrever.</p><div className="practice-questions">{practice.map((question, questionIndex) => <LessonExerciseItem key={questionIndex} exercise={question} index={questionIndex} resolved={results[questionIndex]} onResolve={handleResolve} />)}</div>{total > 0 && resolvedCount === total && <p className="practice-score" role="status">Você completou todas as {total} atividades. Excelente — agora é só concluir.</p>}</>}</section>
 
       <section className="lesson-takeaway"><small>Guarde esta estrutura</small><p>{lesson.takeaway}</p><SpeechButton text={lesson.takeaway} label="Ouvir o resumo" /></section>
 
-      <div className="lesson-completion"><div><h2>{completed ? "Aula concluída" : "Fez sentido?"}</h2><p>{saveState === "saved" ? profileId ? "Seu progresso foi salvo neste perfil." : "Esta aula foi marcada no progresso deste navegador." : saveState === "error" ? "Não foi possível salvar agora. Confira sua conexão e tente de novo." : readyToFinish ? "Você completou todas as atividades. Salve a conclusão no seu progresso." : total > 0 ? `Você completou ${resolvedCount} de ${total} atividades. Finalize as restantes para concluir.` : "Pronto para concluir esta aula."}</p></div><button type="button" className="button button-primary" onClick={finishLesson} disabled={busy || completed || !readyToFinish}>{busy ? "Salvando…" : completed ? "Concluída ✓" : !readyToFinish ? "Complete as atividades para concluir" : "Concluir aula"}</button></div>
+      {requireAccount ? <div className="lesson-completion"><div><h2>Gostou da aula?</h2><p>Crie sua conta grátis para fazer os exercícios, concluir a aula e guardar seu progresso.</p></div><Link className="button button-primary" href={signupHref}>Criar conta grátis <span aria-hidden="true">↗</span></Link></div> :
+      <div className="lesson-completion"><div><h2>{completed ? "Aula concluída" : "Fez sentido?"}</h2><p>{saveState === "saved" ? profileId ? "Seu progresso foi salvo neste perfil." : "Esta aula foi marcada no progresso deste navegador." : saveState === "error" ? "Não foi possível salvar agora. Confira sua conexão e tente de novo." : readyToFinish ? "Você completou todas as atividades. Salve a conclusão no seu progresso." : total > 0 ? `Você completou ${resolvedCount} de ${total} atividades. Finalize as restantes para concluir.` : "Pronto para concluir esta aula."}</p></div><button type="button" className="button button-primary" onClick={finishLesson} disabled={busy || completed || !readyToFinish}>{busy ? "Salvando…" : completed ? "Concluída ✓" : !readyToFinish ? "Complete as atividades para concluir" : "Concluir aula"}</button></div>}
 
       <nav className="lesson-navigation" aria-label="Navegação entre aulas">{previousLesson ? <Link href={`/aula/${previousLesson.slug}`} className="lesson-prev"><small>Aula anterior</small><span>← {previousLesson.title}</span></Link> : <Link href="/curso" className="lesson-prev"><small>Trilha</small><span>← Voltar ao módulo</span></Link>}{nextLesson ? <Link href={`/aula/${nextLesson.slug}`} className="lesson-next"><small>Próxima aula</small><span>{nextLesson.title} →</span></Link> : <Link href="/curso" className="lesson-next"><small>Módulo concluído</small><span>Revisar sua trilha →</span></Link>}</nav>
     </article>

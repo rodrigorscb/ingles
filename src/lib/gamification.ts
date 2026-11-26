@@ -68,7 +68,32 @@ export function unlockedBadges(state: GameState): Badge[] {
   return badges.filter((badge) => badge.test(state));
 }
 
-export type RegisterResult = { state: GameState; gainedXp: number; newBadges: Badge[]; streak: number; streakUp: boolean };
+// Dia AAAA-MM-DD no fuso do Brasil (o público do curso), para a ofensiva.
+export function dayKeyInZone(date: Date, timeZone = "America/Sao_Paulo"): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone, year: "numeric", month: "2-digit", day: "2-digit" }).format(date);
+}
+
+// Calcula XP, ofensiva e melhor ofensiva a partir das conclusões salvas na conta.
+export function statsFromCompletions(entries: { lesson_id: string; completed_at: string }[], now = new Date()): GameState {
+  const lessons = Array.from(new Set(entries.map((entry) => entry.lesson_id)));
+  const days = Array.from(new Set(entries.map((entry) => dayKeyInZone(new Date(entry.completed_at))))).sort();
+  let best = 0;
+  let run = 0;
+  for (let i = 0; i < days.length; i++) {
+    run = i > 0 && daysBetween(days[i - 1], days[i]) === 1 ? run + 1 : 1;
+    best = Math.max(best, run);
+  }
+  const today = dayKeyInZone(now);
+  const lastDay = days[days.length - 1] ?? null;
+  // A ofensiva continua viva se a última atividade foi hoje ou ontem.
+  const alive = lastDay !== null && daysBetween(lastDay, today) <= 1;
+  const streak = alive ? run : 0;
+  const state: GameState = { xp: lessons.length * XP_PER_LESSON, lessons, streak, best, lastDay, seenBadges: [] };
+  state.seenBadges = unlockedBadges(state).map((badge) => badge.id);
+  return state;
+}
+
+export type RegisterResult ={ state: GameState; gainedXp: number; newBadges: Badge[]; streak: number; streakUp: boolean };
 
 // Registra a conclusão de uma aula e devolve o novo estado + o que mudou (para celebrar).
 export function registerLesson(prev: GameState, lessonId: string): RegisterResult {
